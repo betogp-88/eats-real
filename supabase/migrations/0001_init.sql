@@ -1,5 +1,13 @@
 -- Eats Real Admin — esquema inicial
--- Ejecutar en el SQL Editor de Supabase (o con supabase db push).
+-- Ejecutar COMPLETO en el SQL Editor de Supabase (sin texto seleccionado).
+-- Se puede volver a correr: primero limpia lo que haya quedado de un intento anterior.
+
+drop view if exists resultados_mensuales, ventas_detalle, existencias cascade;
+drop table if exists sync_log, gastos, gastos_marketing, despachos, pedido_lineas, pedidos,
+  movimientos_inv, lote_costos, lotes, ubicaciones, maquiladores, productos cascade;
+drop function if exists despachar_pedido(uuid,jsonb), cancelar_pedido(uuid),
+  trasladar_inventario(uuid,uuid,uuid,integer,text), recibir_lote(uuid),
+  recalcular_costo_lote(uuid), trg_lote_costos(), trg_lotes_bolsas() cascade;
 
 create extension if not exists "pgcrypto";
 
@@ -98,8 +106,8 @@ create table movimientos_inv (
   producto_id      uuid not null references productos(id),
   lote_id          uuid not null references lotes(id),
   ubicacion_id     uuid not null references ubicaciones(id),
-  cantidad         integer not null,          -- positivo entra, negativo sale
-  referencia_tipo  text,                      -- 'lote' | 'pedido' | 'traslado' | null
+  cantidad         integer not null,
+  referencia_tipo  text,
   referencia_id    uuid,
   nota             text
 );
@@ -150,7 +158,7 @@ create table pedidos (
   fecha                date not null default current_date,
   cliente_nombre       text,
   cliente_email        text,
-  ubicacion_id         uuid references ubicaciones(id),  -- de dónde sale el inventario (default almacén)
+  ubicacion_id         uuid references ubicaciones(id),
   descuento            numeric(12,2) not null default 0,
   envio_cobrado        numeric(12,2) not null default 0,
   comision_plataforma  numeric(12,2) not null default 0,
@@ -241,7 +249,7 @@ create table gastos_marketing (
   id            uuid primary key default gen_random_uuid(),
   fecha_inicio  date not null,
   fecha_fin     date not null,
-  canal         text not null,       -- meta, google, tiktok, influencer, otro
+  canal         text not null,
   campana       text,
   monto         numeric(12,2) not null default 0,
   nota          text,
@@ -251,7 +259,7 @@ create table gastos_marketing (
 create table gastos (
   id         uuid primary key default gen_random_uuid(),
   fecha      date not null default current_date,
-  categoria  text not null,          -- renta, nomina, software, envios, comisiones, otros
+  categoria  text not null,
   proveedor  text,
   monto      numeric(12,2) not null default 0,
   nota       text,
