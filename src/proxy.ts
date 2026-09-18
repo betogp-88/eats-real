@@ -1,20 +1,27 @@
 import { createServerClient } from "@supabase/ssr";
 import { NextResponse, type NextRequest } from "next/server";
 
+function fallo(msg: string) {
+  return new NextResponse(`Error de configuración: ${msg}`, {
+    status: 500,
+    headers: { "content-type": "text/plain; charset=utf-8" },
+  });
+}
+
 export async function proxy(request: NextRequest) {
-  const url = process.env.NEXT_PUBLIC_SUPABASE_URL;
-  const key = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
+  const url = (process.env.NEXT_PUBLIC_SUPABASE_URL ?? "").trim();
+  const key = (process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY ?? "").trim();
   if (!url || !key) {
-    return new NextResponse(
-      "Faltan las variables de entorno NEXT_PUBLIC_SUPABASE_URL y/o NEXT_PUBLIC_SUPABASE_ANON_KEY. " +
-        "Configúralas en Vercel (Settings → Environment Variables) y vuelve a desplegar.",
-      { status: 500, headers: { "content-type": "text/plain; charset=utf-8" } },
-    );
+    return fallo("faltan NEXT_PUBLIC_SUPABASE_URL y/o NEXT_PUBLIC_SUPABASE_ANON_KEY en Vercel (Settings → Environment Variables). Después de agregarlas hay que redesplegar.");
+  }
+  if (!/^https:\/\/[a-z0-9-]+\.supabase\.co\/?$/.test(url)) {
+    return fallo(`NEXT_PUBLIC_SUPABASE_URL no parece una URL de Supabase válida (valor actual: "${url}"). Debe ser como https://abcdefgh.supabase.co`);
   }
 
-  let response = NextResponse.next({ request });
+  try {
+    let response = NextResponse.next({ request });
 
-  const supabase = createServerClient(url, key, {
+    const supabase = createServerClient(url, key, {
       cookies: {
         getAll() {
           return request.cookies.getAll();
@@ -27,25 +34,27 @@ export async function proxy(request: NextRequest) {
           );
         },
       },
-    },
-  );
+    });
 
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
+    const {
+      data: { user },
+    } = await supabase.auth.getUser();
 
-  const isLogin = request.nextUrl.pathname.startsWith("/login");
-  if (!user && !isLogin) {
-    const url = request.nextUrl.clone();
-    url.pathname = "/login";
-    return NextResponse.redirect(url);
+    const isLogin = request.nextUrl.pathname.startsWith("/login");
+    if (!user && !isLogin) {
+      const dest = request.nextUrl.clone();
+      dest.pathname = "/login";
+      return NextResponse.redirect(dest);
+    }
+    if (user && isLogin) {
+      const dest = request.nextUrl.clone();
+      dest.pathname = "/";
+      return NextResponse.redirect(dest);
+    }
+    return response;
+  } catch (e) {
+    return fallo(e instanceof Error ? `${e.name}: ${e.message}` : String(e));
   }
-  if (user && isLogin) {
-    const url = request.nextUrl.clone();
-    url.pathname = "/";
-    return NextResponse.redirect(url);
-  }
-  return response;
 }
 
 export const config = {
