@@ -134,3 +134,6 @@ Recetas o lista de materiales, contabilidad fiscal/CFDI, multi-empresa, roles gr
 - Supabase: Postgres, Auth, Row Level Security básica.
 - Vercel para hosting y cron jobs de sincronización.
 - Moneda MXN, montos con IVA incluido salvo que se defina lo contrario.
+
+## Identidad visual
+Assets y paleta en `docs/brand/`. Primario verde oscuro `#0E4138`, secundario verde claro `#74AB9A`, acento naranja `#FE8237`, fondo crema `#FFF8ED`, tipografía Outfit.
