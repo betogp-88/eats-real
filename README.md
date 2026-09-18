@@ -57,3 +57,4 @@ npm run dev     # desarrollo
 npm run build   # build de producción
 npm run lint    # eslint
 ```
+Deploy inicial
