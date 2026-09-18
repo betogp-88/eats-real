@@ -330,3 +330,10 @@ end $$;
 -- Las funciones corren con permisos del invocador (respetan RLS)
 revoke execute on function recibir_lote(uuid), trasladar_inventario(uuid,uuid,uuid,integer,text),
   despachar_pedido(uuid,jsonb), cancelar_pedido(uuid), recalcular_costo_lote(uuid) from public, anon;
+
+-- Permisos para la Data API (necesarios si "Automatically expose new tables" está desactivado)
+grant usage on schema public to authenticated, anon;
+grant select, insert, update, delete on all tables in schema public to authenticated;
+grant select on existencias, ventas_detalle, resultados_mensuales to authenticated;
+grant execute on function recibir_lote(uuid), trasladar_inventario(uuid,uuid,uuid,integer,text),
+  despachar_pedido(uuid,jsonb), cancelar_pedido(uuid) to authenticated;
