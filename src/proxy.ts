@@ -1,5 +1,6 @@
 import { createServerClient } from "@supabase/ssr";
 import { NextResponse, type NextRequest } from "next/server";
+import { supabaseEnv } from "@/lib/supabase/env";
 
 function fallo(msg: string) {
   return new NextResponse(`Error de configuración: ${msg}`, {
@@ -9,8 +10,7 @@ function fallo(msg: string) {
 }
 
 export async function proxy(request: NextRequest) {
-  const url = (process.env.NEXT_PUBLIC_SUPABASE_URL ?? "").trim();
-  const key = (process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY ?? "").trim();
+  const { url, key } = supabaseEnv();
   if (!url || !key) {
     return fallo("faltan NEXT_PUBLIC_SUPABASE_URL y/o NEXT_PUBLIC_SUPABASE_ANON_KEY en Vercel (Settings → Environment Variables). Después de agregarlas hay que redesplegar.");
   }
