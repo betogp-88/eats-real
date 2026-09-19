@@ -2,16 +2,20 @@ import { createClient } from "@/lib/supabase/server";
 import { PageHeader, Card } from "@/components/ui";
 import { PedidoForm } from "./form";
 
-export default async function NuevoPedidoPage() {
+export default async function NuevoPedidoPage({ searchParams }: PageProps<"/pedidos/nuevo">) {
+  const sp = await searchParams;
+  const clienteId = typeof sp.cliente === "string" ? sp.cliente : null;
+  const pvId = typeof sp.punto_venta === "string" ? sp.punto_venta : undefined;
   const supabase = await createClient();
-  const [{ data: productos }, { data: ubicaciones }] = await Promise.all([
+  const [{ data: productos }, { data: puntosVenta }, { data: cliente }] = await Promise.all([
     supabase.from("productos").select("id, nombre, precio_lista").eq("activo", true).order("nombre"),
-    supabase.from("ubicaciones").select("id, nombre").eq("tipo", "consignacion").eq("activo", true).order("nombre"),
+    supabase.from("puntos_venta").select("id, nombre, modalidad").eq("activo", true).order("nombre"),
+    clienteId ? supabase.from("clientes").select("id, nombre, telefono").eq("id", clienteId).maybeSingle() : Promise.resolve({ data: null }),
   ]);
   return (
     <>
-      <PageHeader title="Nuevo pedido" subtitle="Venta directa, de consignación o captura manual de otro canal" />
-      <Card><PedidoForm productos={productos ?? []} consignaciones={ubicaciones ?? []} /></Card>
+      <PageHeader title="Nuevo pedido" back={{ href: "/pedidos", label: "Pedidos" }} />
+      <Card className="max-w-4xl"><PedidoForm productos={productos ?? []} puntosVenta={puntosVenta ?? []} clienteInicial={cliente} puntoVentaInicial={pvId} /></Card>
     </>
   );
 }

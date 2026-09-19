@@ -1,7 +1,8 @@
 import Link from "next/link";
 import { createClient } from "@/lib/supabase/server";
-import { PageHeader, Card, LinkButton, Badge, Empty } from "@/components/ui";
+import { PageHeader, Card, LinkButton, Badge, Empty, Tabs } from "@/components/ui";
 import { money, num, fecha, ESTADOS_LOTE } from "@/lib/utils";
+import { tabsProduccion } from "@/lib/nav";
 
 const colorEstado = { borrador: "gray", recibido: "green", cerrado: "orange" } as const;
 
@@ -14,9 +15,10 @@ export default async function LotesPage() {
 
   return (
     <>
-      <PageHeader title="Producción" subtitle="Lotes enviados a maquilar y su costo por bolsa" actions={<LinkButton href="/lotes/nuevo">Nuevo lote</LinkButton>} />
-      <Card>
-        {!lotes?.length ? <Empty>Aún no hay lotes. Crea el primero.</Empty> : (
+      <PageHeader title="Producción" subtitle="Cada lote fija el costo por bolsa que después se usa en el despacho" actions={<LinkButton href="/lotes/nuevo">Nuevo lote</LinkButton>} />
+      <Tabs items={tabsProduccion} current="lotes" />
+      <Card padded={false}>
+        {!lotes?.length ? <Empty action={<LinkButton href="/lotes/nuevo" variant="secondary">Crear el primer lote</LinkButton>}>Aún no hay lotes. Cuando el maquilador te entregue producto, regístralo aquí con sus costos.</Empty> : (
           <table>
             <thead><tr><th>Código</th><th>Producto</th><th>Maquilador</th><th>Producción</th><th>Caducidad</th><th className="text-right">Bolsas</th><th className="text-right">Costo total</th><th className="text-right">Costo / bolsa</th><th>Estado</th></tr></thead>
             <tbody>

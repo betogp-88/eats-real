@@ -28,11 +28,36 @@ export function mesActual() {
 }
 
 export const CANALES: Record<string, string> = {
+  directa: "Venta directa",
+  punto_venta: "Punto de venta",
   shopify: "Shopify",
   amazon: "Amazon",
-  directa: "Directa",
-  consignacion: "Consignación",
+  consignacion: "Consignación (anterior)",
 };
+
+export const MODALIDADES: Record<string, string> = {
+  consignacion: "Consignación",
+  directa: "Venta directa",
+};
+
+export function diasTexto(d: number | null | undefined) {
+  if (d == null) return "Sin compras";
+  if (d === 0) return "Hoy";
+  if (d === 1) return "Ayer";
+  return `Hace ${d} días`;
+}
+
+/** Semáforo de seguimiento por días sin comprar. */
+export function semaforo(dias: number | null | undefined): { color: "green" | "orange" | "red" | "gray"; label: string } {
+  if (dias == null) return { color: "gray", label: "Nuevo" };
+  if (dias <= 45) return { color: "green", label: "Activo" };
+  if (dias <= 90) return { color: "orange", label: "En riesgo" };
+  return { color: "red", label: "Inactivo" };
+}
+
+export function pct(part: number, total: number) {
+  return total > 0 ? `${((part / total) * 100).toFixed(0)}%` : "—";
+}
 
 export const ESTADOS_PEDIDO: Record<string, string> = {
   pendiente: "Pendiente",

@@ -3,8 +3,7 @@
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
-
-type Result = { error?: string } | undefined;
+import type { Result } from "@/components/ui/client";
 
 function productoDe(fd: FormData) {
   return {
@@ -24,9 +23,9 @@ export async function crearProducto(_p: Result, fd: FormData): Promise<Result> {
   const p = productoDe(fd);
   if (!p.sku || !p.nombre) return { error: "SKU y nombre son obligatorios." };
   const { error } = await supabase.from("productos").insert(p);
-  if (error) return { error: error.message };
+  if (error) return { error: error.message.includes("duplicate") ? "Ya existe un producto con ese SKU." : error.message };
   revalidatePath("/productos");
-  redirect("/productos");
+  redirect("/productos?ok=Producto creado");
 }
 
 export async function actualizarProducto(id: string, _p: Result, fd: FormData): Promise<Result> {
@@ -36,29 +35,23 @@ export async function actualizarProducto(id: string, _p: Result, fd: FormData): 
   const { error } = await supabase.from("productos").update(p).eq("id", id);
   if (error) return { error: error.message };
   revalidatePath("/productos");
-  redirect("/productos");
+  redirect("/productos?ok=Producto guardado");
 }
 
-export async function crearMaquilador(fd: FormData) {
+export async function crearUbicacion(_p: Result, fd: FormData): Promise<Result> {
   const supabase = await createClient();
   const nombre = String(fd.get("nombre") ?? "").trim();
-  if (!nombre) return;
-  await supabase.from("maquiladores").insert({ nombre, contacto: String(fd.get("contacto") ?? "").trim() || null });
-  revalidatePath("/productos");
+  if (!nombre) return { error: "El nombre es obligatorio." };
+  const { error } = await supabase.from("ubicaciones").insert({ nombre, tipo: String(fd.get("tipo") ?? "almacen") });
+  if (error) return { error: error.message.includes("duplicate") ? "Ya existe una ubicación con ese nombre." : error.message };
+  revalidatePath("/productos"); revalidatePath("/inventario");
+  return { ok: "Ubicación agregada." };
 }
 
-export async function crearUbicacion(fd: FormData) {
+export async function toggleUbicacion(id: string, activo: boolean): Promise<Result> {
   const supabase = await createClient();
-  const nombre = String(fd.get("nombre") ?? "").trim();
-  const tipo = String(fd.get("tipo") ?? "consignacion");
-  if (!nombre) return;
-  await supabase.from("ubicaciones").insert({ nombre, tipo });
-  revalidatePath("/productos");
-  revalidatePath("/inventario");
-}
-
-export async function toggleActivo(tabla: "maquiladores" | "ubicaciones", id: string, activo: boolean) {
-  const supabase = await createClient();
-  await supabase.from(tabla).update({ activo }).eq("id", id);
-  revalidatePath("/productos");
+  const { error } = await supabase.from("ubicaciones").update({ activo }).eq("id", id);
+  if (error) return { error: error.message };
+  revalidatePath("/productos"); revalidatePath("/inventario");
+  return { ok: activo ? "Ubicación activada." : "Ubicación desactivada." };
 }

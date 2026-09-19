@@ -137,3 +137,8 @@ Recetas o lista de materiales, contabilidad fiscal/CFDI, multi-empresa, roles gr
 
 ## Identidad visual
 Assets y paleta en `docs/brand/`. Primario verde oscuro `#0E4138`, secundario verde claro `#74AB9A`, acento naranja `#FE8237`, fondo crema `#FFF8ED`, tipografía Outfit.
+
+## Fase 1.5 (implementada)
+- **Clientes**: tabla `clientes` y `pedidos.cliente_id`. Búsqueda por nombre o celular al capturar pedidos directos; se crean al vuelo. Vista `clientes_resumen` (pedidos, total, última compra, días sin comprar) para la lista de seguimiento y enlace a WhatsApp.
+- **Puntos de venta**: tabla `puntos_venta` con modalidad (`consignacion` | `directa`) y su ubicación de inventario cuando es a consignación. Canal de pedido `punto_venta`. Vista `puntos_venta_resumen` (frecuencia de pedido, inventario en tienda, total vendido).
+- **Usabilidad**: formulario único de lote (costos en renglones, entrada a almacén opcional), formulario único de pedido con «Guardar y despachar» (FIFO automático), menú por grupos, maquiladores como pestaña de Producción, gastos y marketing en una pantalla, inventario con acciones desplegables, avisos y confirmaciones, inicio orientado a acción.
