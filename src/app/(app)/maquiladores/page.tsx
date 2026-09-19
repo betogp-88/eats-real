@@ -1,5 +1,5 @@
 import { createClient } from "@/lib/supabase/server";
-import { PageHeader, Card, Tabs, Field, Empty } from "@/components/ui";
+import { PageHeader, Card, Tabs, Field, Empty, Switch } from "@/components/ui";
 import { ActionForm } from "@/components/ui/client";
 import { crearMaquilador, actualizarMaquilador } from "../lotes/actions";
 import { tabsProduccion } from "@/lib/nav";
@@ -33,7 +33,7 @@ export default async function MaquiladoresPage() {
                   <div className="grid sm:grid-cols-3 gap-3 items-end">
                     <Field label="Nombre"><input name="nombre" defaultValue={m.nombre} required /></Field>
                     <Field label="Contacto"><input name="contacto" defaultValue={m.contacto ?? ""} placeholder="Nombre, teléfono o correo" /></Field>
-                    <label className="flex items-center gap-2 pb-2 mb-0 text-sm text-ink"><input type="checkbox" name="activo" defaultChecked={m.activo} className="w-auto" /> Activo</label>
+                    <Switch name="activo" defaultChecked={m.activo} label="Activo" className="pb-2" />
                   </div>
                 </ActionForm>
               </Card>

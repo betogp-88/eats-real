@@ -68,12 +68,26 @@ export function Field({ label, children, className, hint }: { label: string; chi
   );
 }
 
+/** Interruptor sí/no (checkbox estilizado). */
+export function Switch({ label, className, ...props }: ComponentProps<"input"> & { label: ReactNode }) {
+  return (
+    <label className={cn("inline-flex items-center gap-3 cursor-pointer select-none text-sm text-ink mb-0", className)}>
+      <span className="relative inline-flex">
+        <input type="checkbox" className="peer sr-only" {...props} />
+        <span className="w-10 h-6 rounded-full bg-line transition peer-checked:bg-brand peer-focus-visible:ring-2 peer-focus-visible:ring-brand-light/50 peer-disabled:opacity-50" />
+        <span className="absolute left-1 top-1 w-4 h-4 rounded-full bg-white shadow transition peer-checked:translate-x-4" />
+      </span>
+      <span>{label}</span>
+    </label>
+  );
+}
+
 /** Input de pesos: muestra el signo $ y acepta centavos. */
 export function MoneyInput({ className, ...props }: ComponentProps<"input">) {
   return (
     <div className="relative">
       <span className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-sm text-ink-soft">$</span>
-      <input type="number" step="0.01" min="0" inputMode="decimal" className={cn("pl-7", className)} {...props} />
+      <input type="number" step="0.01" min="0" inputMode="decimal" className={cn("!pl-8", className)} {...props} />
     </div>
   );
 }
@@ -82,7 +96,7 @@ export function MoneyInput({ className, ...props }: ComponentProps<"input">) {
 export function PercentInput({ className, ...props }: ComponentProps<"input">) {
   return (
     <div className="relative">
-      <input type="number" step="0.1" min="0" max="100" inputMode="decimal" className={cn("pr-8", className)} {...props} />
+      <input type="number" step="0.1" min="0" max="100" inputMode="decimal" className={cn("!pr-9", className)} {...props} />
       <span className="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 text-sm text-ink-soft">%</span>
     </div>
   );

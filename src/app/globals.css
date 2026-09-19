@@ -33,11 +33,15 @@ body {
   font-family: var(--font-sans);
 }
 
-input, select, textarea {
-  @apply w-full rounded-lg border border-line bg-white px-3 py-2 text-sm text-ink outline-none focus:border-brand-light focus:ring-2 focus:ring-brand-light/30;
+@layer base {
+  input:not([type="checkbox"]):not([type="radio"]):not([type="color"]), select, textarea {
+    @apply w-full rounded-lg border border-line bg-white px-3 py-2 text-sm text-ink outline-none focus:border-brand-light focus:ring-2 focus:ring-brand-light/30 disabled:bg-muted disabled:text-ink-soft;
+  }
+  input[type="color"] { @apply h-10 w-16 rounded-lg border border-line bg-white p-1; }
+  input[type="checkbox"], input[type="radio"] { @apply accent-brand w-4 h-4; }
+  label { @apply block text-xs font-medium text-ink-soft mb-1; }
+  table { @apply w-full text-sm whitespace-nowrap md:whitespace-normal; }
+  thead th { @apply text-left text-xs uppercase tracking-wide text-ink-soft font-medium px-3 py-2 border-b border-line; }
+  tbody td { @apply px-3 py-2 border-b border-line/60 align-top; }
+  tbody tr:last-child td { @apply border-b-0; }
 }
-label { @apply block text-xs font-medium text-ink-soft mb-1; }
-table { @apply w-full text-sm whitespace-nowrap md:whitespace-normal; }
-thead th { @apply text-left text-xs uppercase tracking-wide text-ink-soft font-medium px-3 py-2 border-b border-line; }
-tbody td { @apply px-3 py-2 border-b border-line/60 align-top; }
-tbody tr:last-child td { @apply border-b-0; }

@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { ActionForm } from "@/components/ui/client";
-import { Field, MoneyInput, Button, LinkButton } from "@/components/ui";
+import { Field, MoneyInput, Button, LinkButton, Switch } from "@/components/ui";
 import { crearLote, actualizarLote } from "./actions";
 import { hoy, money, CONCEPTOS_LOTE } from "@/lib/utils";
 
@@ -61,10 +61,9 @@ export function LoteForm({ lote, costos: iniciales, productos, maquiladores }: {
         <Field label="Notas"><textarea name="notas" rows={2} defaultValue={lote?.notas ?? ""} /></Field>
 
         {!lote && (
-          <label className="flex items-start gap-3 rounded-lg border border-line bg-muted/40 p-3 text-sm text-ink mb-0 cursor-pointer">
-            <input type="checkbox" name="recibido" className="w-auto mt-0.5" defaultChecked />
-            <span><strong>El producto ya está en el almacén.</strong><br /><span className="text-ink-soft text-xs">Da entrada a inventario con las bolsas finales. Si aún no llega, desmárcalo y queda en borrador.</span></span>
-          </label>
+          <div className="rounded-lg border border-line bg-muted/40 p-3">
+            <Switch name="recibido" defaultChecked label={<span><strong>El producto ya está en el almacén.</strong><br /><span className="text-ink-soft text-xs">Da entrada a inventario con las bolsas finales. Si aún no llega, apágalo y queda en borrador.</span></span>} className="items-start" />
+          </div>
         )}
       </fieldset>
     </ActionForm>
