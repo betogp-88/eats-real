@@ -13,7 +13,7 @@ Next.js (App Router) · TypeScript · Tailwind · Supabase (Postgres + Auth) · 
 ### 1. Base de datos (Supabase)
 
 1. Crea un proyecto en [supabase.com](https://supabase.com).
-2. En **SQL Editor**, ejecuta en orden `supabase/migrations/0001_init.sql`, `supabase/seed.sql` y `supabase/migrations/0002_clientes_puntos_venta.sql`.
+2. En **SQL Editor**, ejecuta en orden `supabase/migrations/0001_init.sql`, `supabase/seed.sql`, `supabase/migrations/0002_clientes_puntos_venta.sql` y `supabase/migrations/0003_tareas.sql`.
 3. En **Authentication → Users**, crea los usuarios de los socios (correo y contraseña). No hay registro público.
 4. En **Settings → API** copia la URL del proyecto y la clave `anon`.
 
@@ -39,6 +39,7 @@ Para que cada push despliegue solo aunque el commit no sea de un miembro del equ
 4. **Puntos de venta**: tiendas a consignación o venta directa; inventario que tienen, frecuencia de pedido y contacto.
 5. **Gastos y marketing**: captura mensual que alimenta el estado de resultados.
 6. **Resultados**: estado de resultados mensual y margen por producto y canal.
+7. **Tareas**: pendientes personales o asignados a otro socio, con prioridad y fecha límite.
 
 ## Estructura
 

@@ -4,7 +4,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { Suspense, useState, type ReactNode } from "react";
-import { Menu, X, LayoutDashboard, Factory, Warehouse, ShoppingCart, Receipt, BarChart3, Users, Store, Settings } from "lucide-react";
+import { Menu, X, LayoutDashboard, CheckSquare, Factory, Warehouse, ShoppingCart, Receipt, BarChart3, Users, Store, Settings } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { logout } from "@/app/(auth)/login/actions";
 import { Toast } from "@/components/ui/client";
@@ -12,6 +12,7 @@ import { Toast } from "@/components/ui/client";
 const grupos = [
   { titulo: "Operación", items: [
     { href: "/", label: "Inicio", icon: LayoutDashboard },
+    { href: "/tareas", label: "Tareas", icon: CheckSquare },
     { href: "/pedidos", label: "Pedidos", icon: ShoppingCart },
     { href: "/clientes", label: "Clientes", icon: Users },
     { href: "/puntos-venta", label: "Puntos de venta", icon: Store },

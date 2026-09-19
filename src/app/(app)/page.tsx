@@ -5,14 +5,16 @@ import { money, num, fecha, diasTexto, pct, CANALES } from "@/lib/utils";
 
 export default async function Home() {
   const supabase = await createClient();
+  const { data: { user } } = await supabase.auth.getUser();
   const mes = new Date().toISOString().slice(0, 7) + "-01";
-  const [{ data: r }, { data: pendientes }, { data: existencias }, { data: productos }, { data: clientes }, { data: puntos }] = await Promise.all([
+  const [{ data: r }, { data: pendientes }, { data: existencias }, { data: productos }, { data: clientes }, { data: puntos }, { data: tareas }] = await Promise.all([
     supabase.from("resultados_mensuales").select("*").eq("mes", mes).maybeSingle(),
     supabase.from("pedidos").select("id, canal, fecha, ref_externa, cliente_nombre").eq("estado", "pendiente").order("fecha").limit(8),
     supabase.from("existencias").select("producto_id, cantidad, ubicaciones(tipo)"),
     supabase.from("productos").select("id, nombre").eq("activo", true).order("nombre"),
     supabase.from("clientes").select("id, nombre, telefono, clientes_resumen(dias_sin_comprar, ultima_compra, pedidos)").limit(200),
     supabase.from("puntos_venta").select("id, nombre, telefono, puntos_venta_resumen(dias_sin_pedir, dias_entre_pedidos, ultimo_pedido)").eq("activo", true),
+    supabase.from("tareas").select("id, titulo, prioridad, fecha_limite").eq("asignado_a", user?.id ?? "").eq("estado", "pendiente").order("fecha_limite", { ascending: true, nullsFirst: false }).limit(6),
   ]);
 
   const ventas = Number(r?.ventas_netas ?? 0);
@@ -38,6 +40,13 @@ export default async function Home() {
         <Stat label="Por despachar" value={String(pendientes?.length ?? 0)} hint="pedidos pendientes" color="ink" />
       </div>
       <div className="grid lg:grid-cols-2 gap-4">
+        <Card title="Mis tareas" actions={<Link href="/tareas" className="text-sm text-brand hover:underline">Ver todas</Link>} padded={false}>
+          {!tareas?.length ? <Empty>Sin pendientes asignados a ti.</Empty> : (
+            <table><tbody>{tareas.map((t) => (
+              <tr key={t.id}><td><Link href="/tareas" className="text-brand hover:underline font-medium">{t.titulo}</Link></td><td className="text-right"><Badge color={t.prioridad === "alta" ? "red" : t.prioridad === "media" ? "orange" : "gray"}>{t.prioridad}</Badge></td><td className="text-right text-ink-soft w-28">{t.fecha_limite ? fecha(t.fecha_limite) : ""}</td></tr>
+            ))}</tbody></table>
+          )}
+        </Card>
         <Card title="Pedidos por despachar" actions={<Link href="/pedidos?estado=pendiente" className="text-sm text-brand hover:underline">Ver todos</Link>} padded={false}>
           {!pendientes?.length ? <Empty>Todo despachado.</Empty> : (
             <table><tbody>{pendientes.map((p) => (
