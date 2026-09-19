@@ -29,16 +29,16 @@ export function Card({ className, children, title, actions }: { className?: stri
           <div className="flex items-center gap-2">{actions}</div>
         </header>
       )}
-      <div className="p-4">{children}</div>
+      <div className="p-4 overflow-x-auto">{children}</div>
     </section>
   );
 }
 
 export function PageHeader({ title, subtitle, actions }: { title: string; subtitle?: string; actions?: ReactNode }) {
   return (
-    <div className="flex flex-wrap items-end justify-between gap-3 mb-6">
+    <div className="flex flex-wrap items-end justify-between gap-3 mb-5 md:mb-6">
       <div>
-        <h1 className="text-2xl font-bold text-brand">{title}</h1>
+        <h1 className="text-xl md:text-2xl font-bold text-brand">{title}</h1>
         {subtitle && <p className="text-sm text-ink-soft mt-1">{subtitle}</p>}
       </div>
       <div className="flex items-center gap-2">{actions}</div>
