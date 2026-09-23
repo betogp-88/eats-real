@@ -2,7 +2,7 @@ import Link from "next/link";
 import { createClient } from "@/lib/supabase/server";
 import { PageHeader, Stat, Card, Empty, Badge, LinkButton, WhatsApp } from "@/components/ui";
 import { money, num, fecha, diasTexto, pct, CANALES } from "@/lib/utils";
-import { DIAS } from "@/lib/sesion";
+import { DIAS } from "@/lib/utils";
 
 export default async function Home() {
   const supabase = await createClient();

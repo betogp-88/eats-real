@@ -14,4 +14,3 @@ export async function sesion() {
 
 /** Rutas permitidas para el rol "rutas" (prefijos). */
 export const RUTAS_ROL_RUTAS = ["/rutas", "/visitas", "/puntos-venta", "/tareas"];
-export const DIAS = ["Domingo", "Lunes", "Martes", "Miércoles", "Jueves", "Viernes", "Sábado"];

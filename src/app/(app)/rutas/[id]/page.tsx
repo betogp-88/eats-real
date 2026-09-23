@@ -4,7 +4,7 @@ import { createClient } from "@/lib/supabase/server";
 import { PageHeader, Card, Badge, Empty, LinkButton, Stat, Panel, Field } from "@/components/ui";
 import { ActionForm, ConfirmButton } from "@/components/ui/client";
 import { money, fecha, num, MODALIDADES } from "@/lib/utils";
-import { DIAS } from "@/lib/sesion";
+import { DIAS } from "@/lib/utils";
 import { empresa } from "@/lib/empresa";
 import { RutaForm } from "../form";
 import { guardarOrden, asignarTiendas, quitarDeRuta, toggleRuta } from "../actions";

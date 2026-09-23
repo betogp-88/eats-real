@@ -2,7 +2,7 @@ import Link from "next/link";
 import { createClient } from "@/lib/supabase/server";
 import { PageHeader, Card, Badge, Empty, LinkButton } from "@/components/ui";
 import { fecha } from "@/lib/utils";
-import { DIAS } from "@/lib/sesion";
+import { DIAS } from "@/lib/utils";
 import { empresa } from "@/lib/empresa";
 import { RutaForm } from "./form";
 

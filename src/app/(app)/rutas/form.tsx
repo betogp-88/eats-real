@@ -3,7 +3,7 @@
 import { ActionForm } from "@/components/ui/client";
 import { Field } from "@/components/ui";
 import { crearRuta, actualizarRuta } from "./actions";
-import { DIAS } from "@/lib/sesion";
+import { DIAS } from "@/lib/utils";
 
 export type Ruta = { id: string; nombre: string; dia_semana: number | null; cada_semanas: number; responsable_id: string | null; notas: string | null; activo: boolean };
 type Perfil = { id: string; nombre: string | null; email: string };

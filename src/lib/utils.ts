@@ -74,3 +74,5 @@ export const ESTADOS_LOTE: Record<string, string> = {
 export const CATEGORIAS_GASTO = ["Renta", "Nómina", "Software", "Envíos", "Comisiones", "Contabilidad", "Otros"];
 export const CANALES_MARKETING = ["Meta", "Google", "TikTok", "Influencers", "Otro"];
 export const CONCEPTOS_LOTE = ["Maquila", "Materia prima", "Empaque", "Etiquetas", "Flete", "Otros"];
+
+export const DIAS = ["Domingo", "Lunes", "Martes", "Miércoles", "Jueves", "Viernes", "Sábado"];
