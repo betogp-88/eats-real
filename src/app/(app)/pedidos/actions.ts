@@ -74,6 +74,9 @@ export async function crearPedido(_p: Result, fd: FormData): Promise<Result> {
     envio_cobrado: Number(fd.get("envio_cobrado") ?? 0),
     comision_plataforma: Number(fd.get("comision_plataforma") ?? 0),
     costo_envio: Number(fd.get("costo_envio") ?? 0),
+    pago_estado: String(fd.get("pago_estado") ?? "pagado") === "pendiente" ? "pendiente" : "pagado",
+    pago_metodo: String(fd.get("pago_metodo") ?? "") || null,
+    pagado_en: String(fd.get("pago_estado") ?? "pagado") === "pendiente" ? null : new Date().toISOString(),
     notas: String(fd.get("notas") ?? "").trim() || null,
   };
   const { data, error } = await supabase.from("pedidos").insert(pedido).select("id").single();
@@ -116,6 +119,14 @@ export async function despachar(id: string, _p: Result, fd: FormData): Promise<R
   if (error) return { error: error.message };
   revalidar(id);
   return { ok: "Pedido despachado." };
+}
+
+export async function marcarPago(id: string, estado: "pagado" | "pendiente", metodo?: string): Promise<Result> {
+  const supabase = await createClient();
+  const { error } = await supabase.rpc("marcar_pago", { p_pedido: id, p_estado: estado, p_metodo: metodo ?? null });
+  if (error) return { error: error.message };
+  revalidar(id);
+  return { ok: estado === "pagado" ? "Pedido marcado como pagado." : "Pedido marcado por cobrar." };
 }
 
 export async function cancelarPedido(id: string): Promise<Result> {

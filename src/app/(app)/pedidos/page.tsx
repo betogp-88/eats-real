@@ -11,12 +11,14 @@ export default async function PedidosPage({ searchParams }: PageProps<"/pedidos"
   const canal = typeof sp.canal === "string" ? sp.canal : "";
   const q = typeof sp.q === "string" ? sp.q.trim() : "";
   const supabase = await createClient();
-  let query = supabase.from("pedidos").select("id, canal, ref_externa, fecha, cliente_nombre, estado, descuento, envio_cobrado, pedido_lineas(cantidad, precio_unitario)").order("fecha", { ascending: false }).order("creado_en", { ascending: false }).limit(200);
+  let query = supabase.from("pedidos").select("id, canal, ref_externa, fecha, cliente_nombre, estado, pago_estado, descuento, envio_cobrado, pedido_lineas(cantidad, precio_unitario)").order("fecha", { ascending: false }).order("creado_en", { ascending: false }).limit(200);
   if (estado) query = query.eq("estado", estado);
   if (canal) query = query.eq("canal", canal);
+  const pago = typeof sp.pago === "string" ? sp.pago : "";
+  if (pago === "pendiente") query = query.eq("pago_estado", "pendiente").neq("estado", "cancelado");
   if (q) query = query.or(`ref_externa.ilike.%${q}%,cliente_nombre.ilike.%${q}%`);
   const { data: pedidos } = await query;
-  const link = (patch: Record<string, string>) => `/pedidos?${new URLSearchParams(Object.fromEntries(Object.entries({ estado, canal, q, ...patch }).filter(([, v]) => v)))}`;
+  const link = (patch: Record<string, string>) => `/pedidos?${new URLSearchParams(Object.fromEntries(Object.entries({ estado, canal, q, pago, ...patch }).filter(([, v]) => v)))}`;
 
   return (
     <>
@@ -29,11 +31,13 @@ export default async function PedidosPage({ searchParams }: PageProps<"/pedidos"
         <span className="hidden sm:block w-px h-6 bg-line mx-1" />
         <Chip href={link({ canal: "" })} active={!canal}>Todos los canales</Chip>
         {Object.entries(CANALES).filter(([k]) => k !== "consignacion").map(([k, v]) => <Chip key={k} href={link({ canal: k })} active={canal === k}>{v}</Chip>)}
+        <span className="hidden sm:block w-px h-6 bg-line mx-1" />
+        <Chip href={link({ pago: pago === "pendiente" ? "" : "pendiente" })} active={pago === "pendiente"}>Por cobrar</Chip>
       </div>
       <Card padded={false}>
         {!pedidos?.length ? <Empty action={<LinkButton href="/pedidos/nuevo" variant="secondary">Capturar un pedido</LinkButton>}>{q || estado || canal ? "No hay pedidos con ese filtro." : "Aún no hay pedidos."}</Empty> : (
           <table>
-            <thead><tr><th>Fecha</th><th>Cliente / tienda</th><th>Canal</th><th>Ref.</th><th className="text-right">Bolsas</th><th className="text-right">Total</th><th>Estado</th></tr></thead>
+            <thead><tr><th>Fecha</th><th>Cliente / tienda</th><th>Canal</th><th>Ref.</th><th className="text-right">Bolsas</th><th className="text-right">Total</th><th>Pago</th><th>Estado</th></tr></thead>
             <tbody>
               {pedidos.map((p) => {
                 const lineas = p.pedido_lineas as unknown as { cantidad: number; precio_unitario: number }[];
@@ -47,6 +51,7 @@ export default async function PedidosPage({ searchParams }: PageProps<"/pedidos"
                     <td className="text-ink-soft text-xs">{p.ref_externa ?? ""}</td>
                     <td className="text-right">{bolsas}</td>
                     <td className="text-right">{money(total)}</td>
+                    <td>{p.estado !== "cancelado" && (p.pago_estado === "pendiente" ? <Badge color="red">Por cobrar</Badge> : <Badge color="gray">Pagado</Badge>)}</td>
                     <td><Badge color={colorEstado[p.estado as keyof typeof colorEstado]}>{ESTADOS_PEDIDO[p.estado]}</Badge></td>
                   </tr>
                 );

@@ -8,7 +8,7 @@ import { ClienteSelector } from "@/app/(app)/clientes/selector";
 import { SelectBuscable } from "@/components/ui/select-buscable";
 
 type Producto = { id: string; nombre: string; precio_lista: number };
-type PV = { id: string; nombre: string; modalidad: string; zona: string | null };
+type PV = { id: string; nombre: string; modalidad: string; ruta: string | null };
 type Cliente = { id: string; nombre: string; telefono: string | null };
 
 const CANALES_FORM = [
@@ -43,7 +43,7 @@ export function PedidoForm({ productos, puntosVenta, clienteInicial, puntoVentaI
       {canal === "punto_venta" ? (
         <div className="grid sm:grid-cols-2 gap-4">
           <Field label="Punto de venta" hint={!puntosVenta.length ? "Primero crea un punto de venta" : "Escribe el nombre de la tienda"}>
-            <SelectBuscable name="punto_venta_id" opciones={puntosVenta.map((p) => ({ id: p.id, label: p.nombre, hint: [p.zona, MODALIDADES[p.modalidad]].filter(Boolean).join(" · ") }))} valorInicial={puntoVentaInicial} onChange={setPvId} required />
+            <SelectBuscable name="punto_venta_id" opciones={puntosVenta.map((p) => ({ id: p.id, label: p.nombre, hint: [p.ruta, MODALIDADES[p.modalidad]].filter(Boolean).join(" · ") }))} valorInicial={puntoVentaInicial} onChange={setPvId} required />
           </Field>
           {pv && (
             <div className="rounded-lg bg-muted/60 px-3 py-2 text-sm text-ink-soft self-end">
@@ -84,7 +84,13 @@ export function PedidoForm({ productos, puntosVenta, clienteInicial, puntoVentaI
         <Field label="Envío cobrado al cliente"><MoneyInput name="envio_cobrado" value={envio || ""} onChange={(e) => setEnvio(Number(e.target.value))} placeholder="0.00" /></Field>
         <Field label="Comisión de plataforma" hint="Lo que cobra Shopify, Amazon o la tienda"><MoneyInput name="comision_plataforma" placeholder="0.00" /></Field>
         <Field label="Costo real del envío" hint="Lo que pagaste a la paquetería"><MoneyInput name="costo_envio" placeholder="0.00" /></Field>
-        <Field label="Notas" className="sm:col-span-2 lg:col-span-4"><input name="notas" /></Field>
+        <Field label="Pago">
+          <select name="pago_estado" defaultValue="pagado"><option value="pagado">Pagado</option><option value="pendiente">Por cobrar</option></select>
+        </Field>
+        <Field label="Forma de pago">
+          <select name="pago_metodo" defaultValue=""><option value="">—</option><option value="efectivo">Efectivo</option><option value="transferencia">Transferencia</option><option value="tarjeta">Tarjeta</option><option value="plataforma">Plataforma (Shopify/Amazon)</option></select>
+        </Field>
+        <Field label="Notas" className="sm:col-span-2"><input name="notas" /></Field>
       </div>
 
       {state?.error && <Alert>{state.error}</Alert>}

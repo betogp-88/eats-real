@@ -38,3 +38,35 @@ begin
     execute format('create policy "miembros_todo" on public.%I for all to authenticated using (public.es_miembro(''eats_real'')) with check (public.es_miembro(''eats_real''))', t);
   end loop;
 end $$;
+
+-- Rol por membresía: admin (todo) o rutas (solo rutas, visitas y puntos de venta)
+alter table public.membresias add column if not exists rol text not null default 'admin' check (rol in ('admin','rutas'));
+create or replace function public.es_admin(p_empresa text) returns boolean
+language sql stable security definer set search_path = public as $$
+  select exists (select 1 from public.membresias m where m.user_id = auth.uid() and m.empresa = p_empresa and m.rol = 'admin');
+$$;
+create or replace function public.mi_rol(p_empresa text) returns text
+language sql stable security definer set search_path = public as $$
+  select m.rol from public.membresias m where m.user_id = auth.uid() and m.empresa = p_empresa;
+$$;
+revoke execute on function public.es_admin(text), public.mi_rol(text) from public, anon;
+grant execute on function public.es_admin(text), public.mi_rol(text) to authenticated;
+-- Los administradores pueden ver y editar membresías de sus empresas
+drop policy if exists "admins_gestionan" on public.membresias;
+create policy "admins_gestionan" on public.membresias for all to authenticated using (public.es_admin(empresa)) with check (public.es_admin(empresa));
+grant insert, update, delete on public.membresias to authenticated;
+
+-- Fotos de visitas en Storage (bucket privado, carpeta por empresa)
+do $$
+begin
+  if exists (select 1 from information_schema.tables where table_schema = 'storage' and table_name = 'buckets') then
+    insert into storage.buckets (id, name, public) values ('visitas', 'visitas', false) on conflict (id) do nothing;
+    execute 'drop policy if exists "visitas_miembros_leen" on storage.objects';
+    execute 'drop policy if exists "visitas_miembros_suben" on storage.objects';
+    execute $p$create policy "visitas_miembros_leen" on storage.objects for select to authenticated
+      using (bucket_id = 'visitas' and public.es_miembro((storage.foldername(name))[1]))$p$;
+    execute $p$create policy "visitas_miembros_suben" on storage.objects for insert to authenticated
+      with check (bucket_id = 'visitas' and public.es_miembro((storage.foldername(name))[1]))$p$;
+  end if;
+end $$;
+

@@ -3,33 +3,36 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { Suspense, useState, type ReactNode } from "react";
-import { Menu, X, LayoutDashboard, CheckSquare, Factory, Warehouse, ShoppingCart, Receipt, BarChart3, Users, Store, Settings } from "lucide-react";
+import { Menu, X, LayoutDashboard, CheckSquare, Factory, Warehouse, ShoppingCart, Receipt, BarChart3, Users, Store, Settings, Route, UserCog } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { logout } from "@/app/(auth)/login/actions";
 import { Toast } from "@/components/ui/client";
 
-const grupos = [
+type Item = { href: string; label: string; icon: typeof Menu; also?: string[]; roles?: string[] };
+const grupos: { titulo: string; items: Item[] }[] = [
   { titulo: "Operación", items: [
-    { href: "/", label: "Inicio", icon: LayoutDashboard },
-    { href: "/tareas", label: "Tareas", icon: CheckSquare },
-    { href: "/pedidos", label: "Pedidos", icon: ShoppingCart },
-    { href: "/clientes", label: "Clientes", icon: Users },
+    { href: "/", label: "Inicio", icon: LayoutDashboard, roles: ["admin"] },
+    { href: "/rutas", label: "Rutas y visitas", icon: Route, also: ["/visitas"] },
     { href: "/puntos-venta", label: "Puntos de venta", icon: Store },
+    { href: "/pedidos", label: "Pedidos", icon: ShoppingCart, roles: ["admin"] },
+    { href: "/clientes", label: "Clientes", icon: Users, roles: ["admin"] },
+    { href: "/tareas", label: "Tareas", icon: CheckSquare },
   ]},
   { titulo: "Producto", items: [
-    { href: "/lotes", label: "Producción", icon: Factory, also: ["/maquiladores"] },
-    { href: "/inventario", label: "Inventario", icon: Warehouse },
+    { href: "/lotes", label: "Producción", icon: Factory, also: ["/maquiladores"], roles: ["admin"] },
+    { href: "/inventario", label: "Inventario", icon: Warehouse, roles: ["admin"] },
   ]},
   { titulo: "Finanzas", items: [
-    { href: "/gastos", label: "Gastos y marketing", icon: Receipt, also: ["/marketing"] },
-    { href: "/resultados", label: "Resultados", icon: BarChart3 },
+    { href: "/gastos", label: "Gastos y marketing", icon: Receipt, also: ["/marketing"], roles: ["admin"] },
+    { href: "/resultados", label: "Resultados", icon: BarChart3, roles: ["admin"] },
   ]},
   { titulo: "Configuración", items: [
-    { href: "/productos", label: "Productos y almacén", icon: Settings },
+    { href: "/productos", label: "Productos y almacén", icon: Settings, roles: ["admin"] },
+    { href: "/usuarios", label: "Usuarios", icon: UserCog, roles: ["admin"] },
   ]},
 ];
 
-export function Shell({ email, nombre, logo, children }: { email?: string; nombre: string; logo: ReactNode; children: ReactNode }) {
+export function Shell({ email, rol, nombre, logo, children }: { email?: string; rol: string; nombre: string; logo: ReactNode; children: ReactNode }) {
   const path = usePathname();
   const [open, setOpen] = useState(false);
   const activo = (href: string, also?: string[]) => href === "/" ? path === "/" : [href, ...(also ?? [])].some((h) => path.startsWith(h));
@@ -57,14 +60,14 @@ export function Shell({ email, nombre, logo, children }: { email?: string; nombr
           <button onClick={() => setOpen(false)} aria-label="Cerrar menú" className="md:hidden p-1"><X size={22} /></button>
         </div>
         <nav className="px-3 space-y-4">
-          {grupos.map((g) => (
+          {grupos.map((g) => ({ ...g, items: g.items.filter((i) => !i.roles || i.roles.includes(rol)) })).filter((g) => g.items.length).map((g) => (
             <div key={g.titulo}>
               <p className="px-3 mb-1 text-[11px] uppercase tracking-wider text-white/40">{g.titulo}</p>
               <div className="space-y-0.5">
-                {g.items.map(({ href, label, icon: Icon, ...rest }) => (
+                {g.items.map(({ href, label, icon: Icon, also }) => (
                   <Link key={href} href={href} onClick={() => setOpen(false)} className={cn(
                     "flex items-center gap-3 rounded-lg px-3 py-2.5 md:py-2 text-sm transition",
-                    activo(href, (rest as { also?: string[] }).also) ? "bg-white/15 text-white font-medium" : "text-white/75 hover:bg-white/10 hover:text-white",
+                    activo(href, also) ? "bg-white/15 text-white font-medium" : "text-white/75 hover:bg-white/10 hover:text-white",
                   )}>
                     <Icon size={18} />{label}
                   </Link>
@@ -75,6 +78,7 @@ export function Shell({ email, nombre, logo, children }: { email?: string; nombr
         </nav>
         <div className="mt-auto px-5 py-4 border-t border-white/10">
           <p className="text-xs text-white/60 truncate">{email}</p>
+          <p className="text-[11px] text-white/40">{rol === "admin" ? "Administrador" : "Rutas"}</p>
           <form action={logout}><button className="text-xs text-white/80 hover:text-white mt-1">Cerrar sesión</button></form>
         </div>
       </aside>

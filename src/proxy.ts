@@ -19,7 +19,9 @@ export async function proxy(request: NextRequest) {
   }
 
   try {
-    let response = NextResponse.next({ request });
+    const reqHeaders = new Headers(request.headers);
+    reqHeaders.set("x-ruta-actual", request.nextUrl.pathname);
+    let response = NextResponse.next({ request: { headers: reqHeaders } });
 
     const supabase = createServerClient(url, key, {
       cookies: {
@@ -28,7 +30,7 @@ export async function proxy(request: NextRequest) {
         },
         setAll(cookiesToSet) {
           cookiesToSet.forEach(({ name, value }) => request.cookies.set(name, value));
-          response = NextResponse.next({ request });
+          response = NextResponse.next({ request: { headers: reqHeaders } });
           cookiesToSet.forEach(({ name, value, options }) =>
             response.cookies.set(name, value, options),
           );

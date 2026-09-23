@@ -5,7 +5,7 @@ import { PageHeader, Card, Badge, Stat, Field, MoneyInput } from "@/components/u
 import { ActionForm, ConfirmButton } from "@/components/ui/client";
 import { money, fecha, pct, CANALES, ESTADOS_PEDIDO } from "@/lib/utils";
 import { sugerirDespacho } from "@/lib/fifo";
-import { actualizarCargos, cancelarPedido, eliminarPedido } from "../actions";
+import { actualizarCargos, cancelarPedido, eliminarPedido, marcarPago } from "../actions";
 import { DespachoForm } from "./despacho";
 
 export default async function PedidoPage({ params }: PageProps<"/pedidos/[id]">) {
@@ -33,6 +33,9 @@ export default async function PedidoPage({ params }: PageProps<"/pedidos/[id]">)
       <PageHeader title={`Pedido ${pedido.ref_externa ?? fecha(pedido.fecha)}`} subtitle={`${CANALES[pedido.canal]} · ${fecha(pedido.fecha)}`} back={{ href: "/pedidos", label: "Pedidos" }}
         actions={<>
           <Badge color={pedido.estado === "despachado" ? "green" : pedido.estado === "cancelado" ? "red" : "orange"}>{ESTADOS_PEDIDO[pedido.estado]}</Badge>
+          {pedido.estado !== "cancelado" && (pedido.pago_estado === "pagado"
+            ? <><Badge color="green">Pagado{pedido.pago_metodo ? ` · ${pedido.pago_metodo}` : ""}</Badge><ConfirmButton action={async () => { "use server"; return marcarPago(id, "pendiente"); }} confirmText="¿Marcar como pendiente de pago?" variant="ghost">Marcar por cobrar</ConfirmButton></>
+            : <><Badge color="red">Por cobrar</Badge><ConfirmButton action={async () => { "use server"; return marcarPago(id, "pagado", "efectivo"); }} confirmText="¿Se pagó en efectivo?" variant="secondary">Pagó en efectivo</ConfirmButton><ConfirmButton action={async () => { "use server"; return marcarPago(id, "pagado", "transferencia"); }} confirmText="¿Se pagó por transferencia?" variant="secondary">Pagó por transferencia</ConfirmButton></>)}
           {pedido.estado === "pendiente" && <ConfirmButton action={async () => { "use server"; return eliminarPedido(id); }} confirmText="¿Eliminar este pedido pendiente?" variant="ghost">Eliminar</ConfirmButton>}
           {pedido.estado !== "cancelado" && <ConfirmButton action={async () => { "use server"; return cancelarPedido(id); }} confirmText={pedido.estado === "despachado" ? "¿Cancelar? El inventario regresa a la ubicación de origen." : "¿Cancelar este pedido?"}>Cancelar pedido</ConfirmButton>}
         </>} />

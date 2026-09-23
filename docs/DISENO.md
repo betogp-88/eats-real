@@ -146,3 +146,11 @@ Assets y paleta en `docs/brand/`. Primario verde oscuro `#0E4138`, secundario ve
 
 ## Multiempresa
 Un solo código para varias empresas. `public.membresias` (usuario, empresa) controla el acceso; las políticas RLS de cada esquema exigen `es_miembro('<slug>')`. Eats Real vive en `public`; cada empresa nueva en su esquema, generado con `supabase/empresas/plantilla_empresa.sql`. La app lee `NEXT_PUBLIC_EMPRESA`, esquema, nombre, logo y colores de variables de entorno (`src/lib/empresa.ts`) y crea el cliente de Supabase con `db.schema`. Perfiles y membresías se consultan siempre en `public` con `supabase.schema("public")`.
+
+## Rutas y visitas (Maíx)
+- `rutas` (día de la semana, cada N semanas, responsable) y `puntos_venta.ruta_id` + `orden`.
+- `visitas`: resultado, vendido, repuesto, cobro (monto y método), fotos (Storage), pedido generado.
+- `registrar_visita(jsonb)` hace todo en una transacción: en consignación, vendido = existencia en tienda − contadas (ajuste positivo si hay de más), crea el pedido `punto_venta` y lo despacha FIFO desde la ubicación de la tienda; repone con traslados FIFO desde almacén; en venta directa, lo entregado es la venta desde almacén.
+- `pedidos.pago_estado` / `pago_metodo` dan cuentas por cobrar por tienda (`puntos_venta_resumen.saldo_pendiente`). `marcar_pago()` las liquida.
+- Rol `rutas` en `membresias`: UI restringida a rutas, visitas, puntos de venta y tareas; RLS impide leer finanzas y producción.
+- Todas las vistas tienen `security_invoker` para que respeten las membresías.

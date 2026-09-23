@@ -2,6 +2,7 @@ import Link from "next/link";
 import { createClient } from "@/lib/supabase/server";
 import { PageHeader, Stat, Card, Empty, Badge, LinkButton, WhatsApp } from "@/components/ui";
 import { money, num, fecha, diasTexto, pct, CANALES } from "@/lib/utils";
+import { DIAS } from "@/lib/sesion";
 
 export default async function Home() {
   const supabase = await createClient();
@@ -16,6 +17,7 @@ export default async function Home() {
     supabase.from("puntos_venta").select("id, nombre, telefono, puntos_venta_resumen(dias_sin_pedir, dias_entre_pedidos, ultimo_pedido)").eq("activo", true).limit(1000),
     supabase.from("tareas").select("id, titulo, prioridad, fecha_limite").eq("asignado_a", user?.id ?? "").eq("estado", "pendiente").order("fecha_limite", { ascending: true, nullsFirst: false }).limit(6),
   ]);
+  const { data: rutasHoy } = await supabase.from("rutas").select("id, nombre, rutas_resumen(tiendas, visitadas_hoy)").eq("activo", true).eq("dia_semana", new Date().getDay());
 
   const ventas = Number(r?.ventas_netas ?? 0);
   const bruta = ventas - Number(r?.costo_venta ?? 0);
@@ -40,6 +42,15 @@ export default async function Home() {
         <Stat label="Utilidad operativa" value={money(operativa)} color={operativa < 0 ? "red" : "brand"} />
         <Stat label="Por despachar" value={String(pendientes?.length ?? 0)} hint="pedidos pendientes" color="ink" />
       </div>
+      {(rutasHoy ?? []).length > 0 && (
+        <div className="mb-4 rounded-xl border border-brand bg-brand-light/10 p-4 flex flex-wrap items-center justify-between gap-3">
+          <div>
+            <p className="font-semibold text-brand">Ruta de hoy, {DIAS[new Date().getDay()].toLowerCase()}</p>
+            <p className="text-sm text-ink-soft">{(rutasHoy ?? []).map((r) => { const s = r.rutas_resumen as unknown as { tiendas: number; visitadas_hoy: number } | null; return `${r.nombre}: ${s?.visitadas_hoy ?? 0} de ${s?.tiendas ?? 0} tiendas visitadas`; }).join(" · ")}</p>
+          </div>
+          <div className="flex gap-2">{(rutasHoy ?? []).map((r) => <LinkButton key={r.id} href={`/rutas/${r.id}`} variant="accent">Abrir {r.nombre}</LinkButton>)}</div>
+        </div>
+      )}
       <div className="grid lg:grid-cols-2 gap-4">
         <Card title="Mis tareas" actions={<Link href="/tareas" className="text-sm text-brand hover:underline">Ver todas</Link>} padded={false}>
           {!tareas?.length ? <Empty>Sin pendientes asignados a ti.</Empty> : (
