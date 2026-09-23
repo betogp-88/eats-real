@@ -1,13 +1,25 @@
-# Dispara un deploy en Vercel en cada push.
-# Necesita el secreto VERCEL_DEPLOY_HOOK (Vercel → Settings → Git → Deploy Hooks).
+# Dispara el deploy en Vercel de cada empresa en cada push (y a mano desde Actions).
+# Secretos del repo: VERCEL_DEPLOY_HOOK_EATS_REAL y VERCEL_DEPLOY_HOOK_MAIX
+# (Vercel → proyecto → Settings → Git → Deploy Hooks). Si uno falta, se omite.
 name: Deploy en Vercel
 on:
   push:
     branches: ["**"]
+  workflow_dispatch:
 jobs:
   deploy:
     runs-on: ubuntu-latest
+    env:
+      HOOK_EATS: ${{ secrets.VERCEL_DEPLOY_HOOK_EATS_REAL }}
+      HOOK_EATS_VIEJO: ${{ secrets.VERCEL_DEPLOY_HOOK }}
+      HOOK_MAIX: ${{ secrets.VERCEL_DEPLOY_HOOK_MAIX }}
     steps:
-      - name: Llamar deploy hook
-        if: ${{ secrets.VERCEL_DEPLOY_HOOK != '' }}
-        run: curl -sS -X POST "${{ secrets.VERCEL_DEPLOY_HOOK }}"
+      - name: Eats Real
+        run: |
+          H="${HOOK_EATS:-$HOOK_EATS_VIEJO}"
+          if [ -z "$H" ]; then echo "Sin deploy hook de Eats Real (secreto VERCEL_DEPLOY_HOOK_EATS_REAL)"; exit 0; fi
+          curl -sS -o /dev/null -w "Eats Real: HTTP %{http_code}\n" -X POST "$H"
+      - name: Maíx
+        run: |
+          if [ -z "$HOOK_MAIX" ]; then echo "Sin deploy hook de Maíx (secreto VERCEL_DEPLOY_HOOK_MAIX)"; exit 0; fi
+          curl -sS -o /dev/null -w "Maix: HTTP %{http_code}\n" -X POST "$HOOK_MAIX"

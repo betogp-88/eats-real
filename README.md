@@ -29,7 +29,7 @@ npm run dev                  # http://localhost:3000
 
 Importa el repo en Vercel y define las mismas dos variables de entorno (`NEXT_PUBLIC_SUPABASE_URL`, `NEXT_PUBLIC_SUPABASE_ANON_KEY`) como tipo **Config**.
 
-Para que cada push despliegue solo aunque el commit no sea de un miembro del equipo de Vercel: crea un **Deploy Hook** en Vercel (Settings → Git → Deploy Hooks) y guárdalo en GitHub como secreto `VERCEL_DEPLOY_HOOK` (Settings → Secrets and variables → Actions). El workflow `.github/workflows/deploy.yml` lo llama en cada push.
+Para que cada push despliegue solo aunque el commit no sea de un miembro del equipo de Vercel: crea un **Deploy Hook** en cada proyecto de Vercel (Settings → Git → Deploy Hooks) y guárdalos en GitHub como secretos `VERCEL_DEPLOY_HOOK_EATS_REAL` y `VERCEL_DEPLOY_HOOK_MAIX` (Settings → Secrets and variables → Actions). El workflow `.github/workflows/deploy.yml` los llama en cada push y también se puede lanzar a mano desde la pestaña Actions.
 
 ## Flujo de uso
 
