@@ -13,6 +13,7 @@ function datosDe(fd: FormData) {
     email: String(fd.get("email") ?? "").trim() || null,
     direccion: String(fd.get("direccion") ?? "").trim() || null,
     modalidad: String(fd.get("modalidad") ?? "consignacion"),
+    zona: String(fd.get("zona") ?? "").trim() || null,
     notas: String(fd.get("notas") ?? "").trim() || null,
   };
 }

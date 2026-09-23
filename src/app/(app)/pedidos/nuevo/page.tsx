@@ -9,7 +9,7 @@ export default async function NuevoPedidoPage({ searchParams }: PageProps<"/pedi
   const supabase = await createClient();
   const [{ data: productos }, { data: puntosVenta }, { data: cliente }] = await Promise.all([
     supabase.from("productos").select("id, nombre, precio_lista").eq("activo", true).order("nombre"),
-    supabase.from("puntos_venta").select("id, nombre, modalidad").eq("activo", true).order("nombre"),
+    supabase.from("puntos_venta").select("id, nombre, modalidad, zona").eq("activo", true).order("nombre").limit(1000),
     clienteId ? supabase.from("clientes").select("id, nombre, telefono").eq("id", clienteId).maybeSingle() : Promise.resolve({ data: null }),
   ]);
   return (

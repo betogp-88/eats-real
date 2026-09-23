@@ -104,8 +104,9 @@ create index if not exists clientes_telefono_idx on clientes (telefono);
 create table if not exists puntos_venta (
   id uuid primary key default gen_random_uuid(), nombre text not null unique, contacto text, telefono text, email text, direccion text,
   modalidad text not null default 'consignacion' check (modalidad in ('consignacion','directa')),
-  ubicacion_id uuid references ubicaciones(id), notas text, activo boolean not null default true, creado_en timestamptz not null default now()
+  ubicacion_id uuid references ubicaciones(id), zona text, notas text, activo boolean not null default true, creado_en timestamptz not null default now()
 );
+create index if not exists puntos_venta_zona_idx on puntos_venta (zona);
 create or replace function crear_punto_venta(p_datos jsonb) returns uuid language plpgsql set search_path = __SCHEMA__, public as $$
 declare v_ubic uuid; v_id uuid; v_nombre text := p_datos->>'nombre';
 begin
@@ -113,8 +114,8 @@ begin
     insert into ubicaciones (nombre, tipo) values (v_nombre, 'consignacion')
     on conflict (nombre) do update set activo = true, tipo = 'consignacion' returning id into v_ubic;
   end if;
-  insert into puntos_venta (nombre, contacto, telefono, email, direccion, modalidad, ubicacion_id, notas)
-  values (v_nombre, p_datos->>'contacto', p_datos->>'telefono', p_datos->>'email', p_datos->>'direccion', coalesce(p_datos->>'modalidad','consignacion'), v_ubic, p_datos->>'notas')
+  insert into puntos_venta (nombre, contacto, telefono, email, direccion, modalidad, ubicacion_id, zona, notas)
+  values (v_nombre, p_datos->>'contacto', p_datos->>'telefono', p_datos->>'email', p_datos->>'direccion', coalesce(p_datos->>'modalidad','consignacion'), v_ubic, p_datos->>'zona', p_datos->>'notas')
   returning id into v_id;
   return v_id;
 end $$;

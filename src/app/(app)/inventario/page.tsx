@@ -15,7 +15,7 @@ export default async function InventarioPage({ searchParams }: PageProps<"/inven
   const supabase = await createClient();
   const [{ data: existencias }, { data: ubicaciones }, { data: productos }, { data: lotes }, { data: movimientos }] = await Promise.all([
     supabase.from("existencias").select("producto_id, lote_id, ubicacion_id, cantidad"),
-    supabase.from("ubicaciones").select("id, nombre, tipo").eq("activo", true).order("tipo").order("nombre"),
+    supabase.from("ubicaciones").select("id, nombre, tipo").eq("activo", true).order("tipo").order("nombre").limit(1000),
     supabase.from("productos").select("id, nombre").eq("activo", true).order("nombre"),
     supabase.from("lotes").select("id, codigo, fecha_caducidad, productos(nombre)").neq("estado", "borrador").order("fecha_produccion"),
     supabase.from("movimientos_inv").select("id, fecha, tipo, cantidad, nota, productos(nombre), lotes(codigo), ubicaciones(nombre)").order("fecha", { ascending: false }).limit(40),
@@ -23,6 +23,9 @@ export default async function InventarioPage({ searchParams }: PageProps<"/inven
 
   const ubics = ubicaciones ?? [];
   const almacen = ubics.find((u) => u.tipo === "almacen");
+  const propias = ubics.filter((u) => u.tipo !== "consignacion");
+  const tiendas = ubics.filter((u) => u.tipo === "consignacion");
+  const enTiendas = (fila: Map<string, number> | Record<string, number>) => tiendas.reduce((s, u) => s + (fila instanceof Map ? fila.get(u.id) ?? 0 : fila[u.id] ?? 0), 0);
   const dispPorLote = new Map<string, Record<string, number>>();
   const matriz = new Map<string, Map<string, number>>();
   for (const e of existencias ?? []) {
@@ -39,7 +42,7 @@ export default async function InventarioPage({ searchParams }: PageProps<"/inven
 
   return (
     <>
-      <PageHeader title="Inventario" subtitle="Existencias por producto y ubicación, calculadas a partir de los movimientos" />
+      <PageHeader title="Inventario" subtitle="Existencias por producto y ubicación, calculadas a partir de los movimientos. El detalle por tienda está en cada punto de venta." />
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
         <Stat label="En almacén" value={num(totalAlmacen)} hint="bolsas" />
         <Stat label="En consignación" value={num(totalConsig)} hint="bolsas en tiendas" />
@@ -50,7 +53,7 @@ export default async function InventarioPage({ searchParams }: PageProps<"/inven
       <Card title="Existencias" className="mb-4" padded={false}>
         {!productos?.length ? <Empty>Sin productos.</Empty> : (
           <table>
-            <thead><tr><th>Producto</th>{ubics.map((u) => <th key={u.id} className="text-right">{u.nombre}</th>)}<th className="text-right">Total</th></tr></thead>
+            <thead><tr><th>Producto</th>{propias.map((u) => <th key={u.id} className="text-right">{u.nombre}</th>)}{tiendas.length > 0 && <th className="text-right">En tiendas ({tiendas.length})</th>}<th className="text-right">Total</th></tr></thead>
             <tbody>
               {productos.map((p) => {
                 const fila = matriz.get(p.id) ?? new Map<string, number>();
@@ -59,7 +62,8 @@ export default async function InventarioPage({ searchParams }: PageProps<"/inven
                 return (
                   <tr key={p.id}>
                     <td className="font-medium">{p.nombre} {enAlm === 0 ? <Badge color="red">Sin stock</Badge> : enAlm < 50 ? <Badge color="orange">Bajo</Badge> : null}</td>
-                    {ubics.map((u) => <td key={u.id} className="text-right">{num(fila.get(u.id) ?? 0)}</td>)}
+                    {propias.map((u) => <td key={u.id} className="text-right">{num(fila.get(u.id) ?? 0)}</td>)}
+                    {tiendas.length > 0 && <td className="text-right">{num(enTiendas(fila))}</td>}
                     <td className="text-right font-semibold">{num(total)}</td>
                   </tr>
                 );
@@ -77,7 +81,7 @@ export default async function InventarioPage({ searchParams }: PageProps<"/inven
       <Card title="Detalle por lote" className="mb-4" padded={false}>
         {!lotesConStock.length ? <Empty>Sin existencias. Registra un lote en Producción y márcalo como recibido.</Empty> : (
           <table>
-            <thead><tr><th>Producto</th><th>Lote</th><th>Caducidad</th>{ubics.map((u) => <th key={u.id} className="text-right">{u.nombre}</th>)}</tr></thead>
+            <thead><tr><th>Producto</th><th>Lote</th><th>Caducidad</th>{propias.map((u) => <th key={u.id} className="text-right">{u.nombre}</th>)}{tiendas.length > 0 && <th className="text-right">En tiendas</th>}</tr></thead>
             <tbody>
               {lotesConStock.map((l) => {
                 const dias = diasHasta(l.fecha_caducidad);
@@ -86,7 +90,8 @@ export default async function InventarioPage({ searchParams }: PageProps<"/inven
                     <td>{l.producto}</td>
                     <td className="font-mono text-xs">{l.codigo}</td>
                     <td>{fecha(l.fecha_caducidad) || "—"} {dias != null && dias < 45 && <Badge color={dias < 0 ? "red" : "orange"}>{dias < 0 ? "Caducado" : `${dias} días`}</Badge>}</td>
-                    {ubics.map((u) => <td key={u.id} className="text-right">{l.disponible[u.id] ? num(l.disponible[u.id]) : <span className="text-ink-soft">·</span>}</td>)}
+                    {propias.map((u) => <td key={u.id} className="text-right">{l.disponible[u.id] ? num(l.disponible[u.id]) : <span className="text-ink-soft">·</span>}</td>)}
+                    {tiendas.length > 0 && <td className="text-right">{enTiendas(l.disponible) ? num(enTiendas(l.disponible)) : <span className="text-ink-soft">·</span>}</td>}
                   </tr>
                 );
               })}

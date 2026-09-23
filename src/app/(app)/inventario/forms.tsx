@@ -3,6 +3,7 @@
 import { ActionForm } from "@/components/ui/client";
 import { Field } from "@/components/ui";
 import { trasladar, ajustar } from "./actions";
+import { SelectBuscable } from "@/components/ui/select-buscable";
 
 type Lote = { id: string; codigo: string; producto: string; disponible: Record<string, number> };
 type Ubic = { id: string; nombre: string; tipo: string };
@@ -18,8 +19,8 @@ export function TrasladoForm({ lotes, ubicaciones, destinoInicial }: { lotes: Lo
     <ActionForm action={trasladar} submit="Trasladar">
       <div className="grid sm:grid-cols-2 gap-3">
         <Field label="Lote" className="sm:col-span-2"><select name="lote_id" required defaultValue=""><option value="" disabled>Selecciona…</option>{opcionesLote(lotes.filter((l) => (l.disponible[almacen ?? ""] ?? 0) > 0 || Object.values(l.disponible).some((v) => v > 0)), almacen)}</select></Field>
-        <Field label="Desde"><select name="origen_id" required defaultValue={almacen}>{ubicaciones.map((u) => <option key={u.id} value={u.id}>{u.nombre}</option>)}</select></Field>
-        <Field label="Hacia"><select name="destino_id" required defaultValue={destinoInicial ?? ubicaciones.find((u) => u.tipo === "consignacion")?.id ?? ""}>{ubicaciones.map((u) => <option key={u.id} value={u.id}>{u.nombre}</option>)}</select></Field>
+        <Field label="Desde"><select name="origen_id" required defaultValue={almacen}>{ubicaciones.filter((u) => u.tipo !== "consignacion").map((u) => <option key={u.id} value={u.id}>{u.nombre}</option>)}<optgroup label="Tiendas">{ubicaciones.filter((u) => u.tipo === "consignacion").map((u) => <option key={u.id} value={u.id}>{u.nombre}</option>)}</optgroup></select></Field>
+        <Field label="Hacia" hint="Escribe el nombre de la tienda o ubicación"><SelectBuscable name="destino_id" opciones={ubicaciones.map((u) => ({ id: u.id, label: u.nombre, hint: u.tipo === "consignacion" ? "Tienda" : u.tipo }))} valorInicial={destinoInicial} required /></Field>
         <Field label="Bolsas"><input name="cantidad" type="number" min="1" required /></Field>
         <Field label="Nota"><input name="nota" placeholder="Entrega a tienda" /></Field>
       </div>

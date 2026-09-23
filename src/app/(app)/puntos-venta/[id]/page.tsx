@@ -9,10 +9,12 @@ import { toggleActivoPuntoVenta } from "../actions";
 
 export default async function PuntoVentaPage({ params }: PageProps<"/puntos-venta/[id]">) {
   const { id } = await params;
-  if (id === "nuevo") {
-    return (<><PageHeader title="Nuevo punto de venta" back={{ href: "/puntos-venta", label: "Puntos de venta" }} /><Card className="max-w-2xl"><PuntoVentaForm /></Card></>);
-  }
   const supabase = await createClient();
+  const { data: zonasRaw } = await supabase.from("puntos_venta").select("zona").not("zona", "is", null);
+  const zonas = [...new Set((zonasRaw ?? []).map((z) => z.zona as string))].sort();
+  if (id === "nuevo") {
+    return (<><PageHeader title="Nuevo punto de venta" back={{ href: "/puntos-venta", label: "Puntos de venta" }} /><Card className="max-w-2xl"><PuntoVentaForm zonas={zonas} /></Card></>);
+  }
   const [{ data: pv }, { data: r }, { data: pedidos }] = await Promise.all([
     supabase.from("puntos_venta").select("*").eq("id", id).maybeSingle(),
     supabase.from("puntos_venta_resumen").select("*").eq("punto_venta_id", id).maybeSingle(),
@@ -25,7 +27,7 @@ export default async function PuntoVentaPage({ params }: PageProps<"/puntos-vent
 
   return (
     <>
-      <PageHeader title={pv.nombre} subtitle={[pv.contacto, pv.telefono, pv.direccion].filter(Boolean).join(" · ")} back={{ href: "/puntos-venta", label: "Puntos de venta" }}
+      <PageHeader title={pv.nombre} subtitle={[pv.zona, pv.contacto, pv.telefono, pv.direccion].filter(Boolean).join(" · ")} back={{ href: "/puntos-venta", label: "Puntos de venta" }}
         actions={<>
           <Badge color={pv.modalidad === "consignacion" ? "orange" : "green"}>{MODALIDADES[pv.modalidad]}</Badge>
           <WhatsApp telefono={pv.telefono}><span className="rounded-lg bg-brand-light/20 px-3 py-1.5">WhatsApp</span></WhatsApp>
@@ -66,7 +68,7 @@ export default async function PuntoVentaPage({ params }: PageProps<"/puntos-vent
           </Card>
         </div>
         <Card title="Datos generales" actions={<ConfirmButton action={async () => { "use server"; return toggleActivoPuntoVenta(id, !pv.activo); }} confirmText={pv.activo ? "¿Desactivar este punto de venta?" : "¿Activar este punto de venta?"} variant="secondary">{pv.activo ? "Desactivar" : "Activar"}</ConfirmButton>}>
-          <PuntoVentaForm pv={pv} />
+          <PuntoVentaForm pv={pv} zonas={zonas} />
         </Card>
       </div>
     </>

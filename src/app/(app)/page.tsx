@@ -13,7 +13,7 @@ export default async function Home() {
     supabase.from("existencias").select("producto_id, cantidad, ubicaciones(tipo)"),
     supabase.from("productos").select("id, nombre").eq("activo", true).order("nombre"),
     supabase.from("clientes").select("id, nombre, telefono, clientes_resumen(dias_sin_comprar, ultima_compra, pedidos)").limit(200),
-    supabase.from("puntos_venta").select("id, nombre, telefono, puntos_venta_resumen(dias_sin_pedir, dias_entre_pedidos, ultimo_pedido)").eq("activo", true),
+    supabase.from("puntos_venta").select("id, nombre, telefono, puntos_venta_resumen(dias_sin_pedir, dias_entre_pedidos, ultimo_pedido)").eq("activo", true).limit(1000),
     supabase.from("tareas").select("id, titulo, prioridad, fecha_limite").eq("asignado_a", user?.id ?? "").eq("estado", "pendiente").order("fecha_limite", { ascending: true, nullsFirst: false }).limit(6),
   ]);
 
@@ -27,7 +27,8 @@ export default async function Home() {
   type C = { id: string; nombre: string; telefono: string | null; clientes_resumen: { dias_sin_comprar: number | null; ultima_compra: string | null; pedidos: number } | null };
   const contactar = ((clientes ?? []) as unknown as C[]).filter((c) => c.clientes_resumen?.dias_sin_comprar != null && c.clientes_resumen.dias_sin_comprar > 30).sort((a, b) => b.clientes_resumen!.dias_sin_comprar! - a.clientes_resumen!.dias_sin_comprar!).slice(0, 6);
   type P = { id: string; nombre: string; telefono: string | null; puntos_venta_resumen: { dias_sin_pedir: number | null; dias_entre_pedidos: number | null; ultimo_pedido: string | null } | null };
-  const visitar = ((puntos ?? []) as unknown as P[]).filter((p) => { const s = p.puntos_venta_resumen; return s?.dias_entre_pedidos != null && s.dias_sin_pedir != null && s.dias_sin_pedir > s.dias_entre_pedidos; });
+  const visitarTodos = ((puntos ?? []) as unknown as P[]).filter((p) => { const s = p.puntos_venta_resumen; return s?.dias_entre_pedidos != null && s.dias_sin_pedir != null && s.dias_sin_pedir > s.dias_entre_pedidos; }).sort((a, b) => (b.puntos_venta_resumen!.dias_sin_pedir ?? 0) - (a.puntos_venta_resumen!.dias_sin_pedir ?? 0));
+  const visitar = visitarTodos.slice(0, 8);
 
   return (
     <>
@@ -66,7 +67,7 @@ export default async function Home() {
             ))}</tbody></table>
           )}
         </Card>
-        <Card title="Puntos de venta que toca visitar" actions={<Link href="/puntos-venta" className="text-sm text-brand hover:underline">Ver todos</Link>} padded={false}>
+        <Card title={`Puntos de venta que toca visitar${visitarTodos.length > 8 ? ` (${visitarTodos.length})` : ""}`} actions={<Link href="/puntos-venta?f=visitar" className="text-sm text-brand hover:underline">Ver todos</Link>} padded={false}>
           {!visitar.length ? <Empty>Ninguna tienda se ha pasado de su ritmo habitual de pedido.</Empty> : (
             <table><tbody>{visitar.map((p) => (
               <tr key={p.id}><td><Link href={`/puntos-venta/${p.id}`} className="text-brand hover:underline font-medium">{p.nombre}</Link></td><td className="text-ink-soft">Último pedido {diasTexto(p.puntos_venta_resumen!.dias_sin_pedir)} · suele pedir cada {p.puntos_venta_resumen!.dias_entre_pedidos} días</td><td className="text-right"><WhatsApp telefono={p.telefono} /></td></tr>

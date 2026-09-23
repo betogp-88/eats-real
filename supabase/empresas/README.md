@@ -5,7 +5,7 @@ El código es uno solo. Cada empresa tiene su **esquema** de Postgres con las mi
 ## Dar de alta una empresa nueva (ejemplo: Maix)
 
 ### 1. Base de datos (una vez)
-1. Asegúrate de que `0001` a `0004` ya estén aplicadas.
+1. Asegúrate de que `0001` a `0004` ya estén aplicadas (y `0006` después del esquema nuevo).
 2. Genera el SQL de la empresa: toma `plantilla_empresa.sql`, reemplaza `__SCHEMA__` por el slug (minúsculas, sin espacios, p. ej. `maix`). Para Maix ya está generado en `supabase/migrations/0005_maix.sql`.
 3. Ejecuta ese archivo COMPLETO en el SQL Editor.
 4. En Supabase: **Settings → Data API → Exposed schemas**, agrega el esquema (`maix`) y guarda.
@@ -25,8 +25,8 @@ El código es uno solo. Cada empresa tiene su **esquema** de Postgres con las mi
    - `NEXT_PUBLIC_SUPABASE_URL` y `NEXT_PUBLIC_SUPABASE_ANON_KEY`: las mismas del proyecto.
    - `NEXT_PUBLIC_EMPRESA=maix`
    - `NEXT_PUBLIC_MARCA_NOMBRE=Maix`
-   - `NEXT_PUBLIC_MARCA_LOGO=/logos/maix.png` (sube el archivo a `public/logos/`), o `none` para iniciales.
-   - Colores: `NEXT_PUBLIC_COLOR_PRIMARIO`, `NEXT_PUBLIC_COLOR_SECUNDARIO`, `NEXT_PUBLIC_COLOR_ACENTO`, `NEXT_PUBLIC_COLOR_ACENTO_SUAVE`, `NEXT_PUBLIC_COLOR_FONDO` (hex).
+   - `NEXT_PUBLIC_MARCA_LOGO=/logos/maix.png` (ya está en `public/logos/`), o `none` para iniciales.
+   - Colores (ver `docs/brand/maix/README.md`): `NEXT_PUBLIC_COLOR_PRIMARIO=#1a1a1a`, `NEXT_PUBLIC_COLOR_SECUNDARIO=#b89b5e`, `NEXT_PUBLIC_COLOR_ACENTO=#d9a521`, `NEXT_PUBLIC_COLOR_ACENTO_SUAVE=#f1e2b3`, `NEXT_PUBLIC_COLOR_FONDO=#f7f5f0`.
 3. Deploy. Para despliegues automáticos, crea un Deploy Hook en este proyecto de Vercel y agrégalo como secreto de GitHub con otro nombre, o simplemente haz Redeploy cuando haya cambios.
 
 ## Cambios de esquema en el futuro

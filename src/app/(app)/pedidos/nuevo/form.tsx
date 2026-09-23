@@ -5,9 +5,10 @@ import { Button, Field, Alert, LinkButton, MoneyInput } from "@/components/ui";
 import { crearPedido } from "../actions";
 import { hoy, money, MODALIDADES } from "@/lib/utils";
 import { ClienteSelector } from "@/app/(app)/clientes/selector";
+import { SelectBuscable } from "@/components/ui/select-buscable";
 
 type Producto = { id: string; nombre: string; precio_lista: number };
-type PV = { id: string; nombre: string; modalidad: string };
+type PV = { id: string; nombre: string; modalidad: string; zona: string | null };
 type Cliente = { id: string; nombre: string; telefono: string | null };
 
 const CANALES_FORM = [
@@ -20,7 +21,7 @@ const CANALES_FORM = [
 export function PedidoForm({ productos, puntosVenta, clienteInicial, puntoVentaInicial }: { productos: Producto[]; puntosVenta: PV[]; clienteInicial?: Cliente | null; puntoVentaInicial?: string }) {
   const [state, action, pending] = useActionState(crearPedido, undefined);
   const [canal, setCanal] = useState(puntoVentaInicial ? "punto_venta" : "directa");
-  const [pvId, setPvId] = useState(puntoVentaInicial ?? puntosVenta[0]?.id ?? "");
+  const [pvId, setPvId] = useState(puntoVentaInicial ?? "");
   const [lineas, setLineas] = useState([{ producto_id: productos[0]?.id ?? "", cantidad: 1, precio: productos[0]?.precio_lista ?? 0 }]);
   const [descuento, setDescuento] = useState(0);
   const [envio, setEnvio] = useState(0);
@@ -41,11 +42,8 @@ export function PedidoForm({ productos, puntosVenta, clienteInicial, puntoVentaI
 
       {canal === "punto_venta" ? (
         <div className="grid sm:grid-cols-2 gap-4">
-          <Field label="Punto de venta">
-            <select name="punto_venta_id" value={pvId} onChange={(e) => setPvId(e.target.value)} required>
-              {!puntosVenta.length && <option value="">Primero crea un punto de venta</option>}
-              {puntosVenta.map((p) => <option key={p.id} value={p.id}>{p.nombre}</option>)}
-            </select>
+          <Field label="Punto de venta" hint={!puntosVenta.length ? "Primero crea un punto de venta" : "Escribe el nombre de la tienda"}>
+            <SelectBuscable name="punto_venta_id" opciones={puntosVenta.map((p) => ({ id: p.id, label: p.nombre, hint: [p.zona, MODALIDADES[p.modalidad]].filter(Boolean).join(" · ") }))} valorInicial={puntoVentaInicial} onChange={setPvId} required />
           </Field>
           {pv && (
             <div className="rounded-lg bg-muted/60 px-3 py-2 text-sm text-ink-soft self-end">
