@@ -2,6 +2,7 @@ import Link from "next/link";
 import { createClient } from "@/lib/supabase/server";
 import { PageHeader, Card, LinkButton, Badge, Empty, WhatsApp } from "@/components/ui";
 import { money, fecha, diasTexto, MODALIDADES, num } from "@/lib/utils";
+import { empresa } from "@/lib/empresa";
 
 export default async function PuntosVentaPage() {
   const supabase = await createClient();
@@ -12,7 +13,7 @@ export default async function PuntosVentaPage() {
 
   return (
     <>
-      <PageHeader title="Puntos de venta" subtitle="Tiendas y cafeterías que venden Eats Real, a consignación o compra directa" actions={<LinkButton href="/puntos-venta/nuevo">Nuevo punto de venta</LinkButton>} />
+      <PageHeader title="Puntos de venta" subtitle={`Tiendas y cafeterías que venden ${empresa.nombre}, a consignación o compra directa`} actions={<LinkButton href="/puntos-venta/nuevo">Nuevo punto de venta</LinkButton>} />
       <Card padded={false}>
         {!filas.length ? <Empty action={<LinkButton href="/puntos-venta/nuevo" variant="secondary">Agregar el primero</LinkButton>}>Aún no hay puntos de venta.</Empty> : (
           <table>

@@ -4,6 +4,7 @@ import { ConfirmButton } from "@/components/ui/client";
 import { fecha, hoy } from "@/lib/utils";
 import { NuevaTareaForm, EditarTarea, MiNombreForm, nombreDe, type Perfil } from "./forms";
 import { marcarTarea, eliminarTarea } from "./actions";
+import { empresa } from "@/lib/empresa";
 
 const prioridadColor = { alta: "red", media: "orange", baja: "gray" } as const;
 const prioridadLabel = { alta: "Alta", media: "Media", baja: "Baja" } as const;
@@ -14,12 +15,16 @@ export default async function TareasPage({ searchParams }: PageProps<"/tareas">)
   const supabase = await createClient();
   const { data: { user } } = await supabase.auth.getUser();
   const yo = user!.id;
-  const [{ data: perfiles }, { data: tareas }] = await Promise.all([
-    supabase.from("perfiles").select("id, nombre, email").order("nombre"),
-    supabase.from("tareas").select("*, creador:perfiles!tareas_creado_por_fkey(id, nombre, email), asignado:perfiles!tareas_asignado_a_fkey(id, nombre, email)").order("estado").order("fecha_limite", { ascending: true, nullsFirst: false }).order("creado_en", { ascending: false }).limit(300),
+  // Solo los usuarios que son miembros de esta empresa (perfiles y membresías viven en public)
+  const { data: miembros } = await supabase.schema("public").from("membresias").select("user_id").eq("empresa", empresa.slug);
+  const ids = (miembros ?? []).map((m) => m.user_id);
+  const [{ data: perfiles }, { data: tareasRaw }] = await Promise.all([
+    supabase.schema("public").from("perfiles").select("id, nombre, email").in("id", ids.length ? ids : [yo]).order("nombre"),
+    supabase.from("tareas").select("*").order("estado").order("fecha_limite", { ascending: true, nullsFirst: false }).order("creado_en", { ascending: false }).limit(300),
   ]);
-  type T = NonNullable<typeof tareas>[number] & { creador: Perfil | null; asignado: Perfil | null };
-  let lista = (tareas ?? []) as unknown as T[];
+  const porId = new Map((perfiles ?? []).map((p) => [p.id, p as Perfil]));
+  type T = NonNullable<typeof tareasRaw>[number] & { creador: Perfil | null; asignado: Perfil | null };
+  let lista = (tareasRaw ?? []).map((t) => ({ ...t, creador: porId.get(t.creado_por) ?? null, asignado: t.asignado_a ? porId.get(t.asignado_a) ?? null : null })) as T[];
   if (filtro === "mias") lista = lista.filter((t) => t.asignado_a === yo);
   if (filtro === "asigne") lista = lista.filter((t) => t.creado_por === yo && t.asignado_a !== yo);
   const pendientes = lista.filter((t) => t.estado === "pendiente");

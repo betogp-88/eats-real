@@ -1,6 +1,5 @@
 "use client";
 
-import Image from "next/image";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { Suspense, useState, type ReactNode } from "react";
@@ -30,7 +29,7 @@ const grupos = [
   ]},
 ];
 
-export function Shell({ email, children }: { email?: string; children: ReactNode }) {
+export function Shell({ email, nombre, logo, children }: { email?: string; nombre: string; logo: ReactNode; children: ReactNode }) {
   const path = usePathname();
   const [open, setOpen] = useState(false);
   const activo = (href: string, also?: string[]) => href === "/" ? path === "/" : [href, ...(also ?? [])].some((h) => path.startsWith(h));
@@ -39,8 +38,8 @@ export function Shell({ email, children }: { email?: string; children: ReactNode
     <div className="flex-1 flex min-h-screen">
       <header className="md:hidden fixed top-0 inset-x-0 z-30 h-14 bg-brand text-white flex items-center gap-3 px-4">
         <button onClick={() => setOpen(true)} aria-label="Abrir menú" className="p-1 -ml-1"><Menu size={24} /></button>
-        <Image src="/logo.png" alt="" width={32} height={32} className="rounded-full bg-white/10 p-0.5" />
-        <span className="font-bold">Eats Real Admin</span>
+        {logo}
+        <span className="font-bold">{nombre} Admin</span>
       </header>
 
       {open && <div className="md:hidden fixed inset-0 z-40 bg-black/40" onClick={() => setOpen(false)} />}
@@ -50,9 +49,9 @@ export function Shell({ email, children }: { email?: string; children: ReactNode
         open ? "translate-x-0" : "-translate-x-full md:translate-x-0",
       )}>
         <div className="flex items-center gap-3 px-5 py-5">
-          <Image src="/logo.png" alt="" width={44} height={44} className="rounded-full bg-white/10 p-0.5" />
+          {logo}
           <div className="flex-1">
-            <p className="font-bold leading-tight">Eats Real</p>
+            <p className="font-bold leading-tight">{nombre}</p>
             <p className="text-xs text-white/60">Admin</p>
           </div>
           <button onClick={() => setOpen(false)} aria-label="Cerrar menú" className="md:hidden p-1"><X size={22} /></button>

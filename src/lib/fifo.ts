@@ -1,4 +1,5 @@
-import type { SupabaseClient } from "@supabase/supabase-js";
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+type SupabaseClient = import("@supabase/supabase-js").SupabaseClient<any, string, string, any, any>;
 
 export type LoteDisponible = { id: string; codigo: string; fecha_caducidad: string | null; costo_unitario: number; disponible: number };
 export type LineaDespacho = { id: string; producto: string; cantidad: number; lotes: LoteDisponible[]; sugerido: Record<string, number> };

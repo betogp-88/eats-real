@@ -67,7 +67,7 @@ export async function actualizarMiNombre(_p: Result, fd: FormData): Promise<Resu
   if (!user) return { error: "Sesión no válida." };
   const nombre = String(fd.get("nombre") ?? "").trim();
   if (!nombre) return { error: "Escribe tu nombre." };
-  const { error } = await supabase.from("perfiles").update({ nombre }).eq("id", user.id);
+  const { error } = await supabase.schema("public").from("perfiles").update({ nombre }).eq("id", user.id);
   if (error) return { error: error.message };
   revalidar();
   return { ok: "Nombre guardado." };
