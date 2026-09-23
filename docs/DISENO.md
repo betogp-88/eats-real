@@ -154,3 +154,9 @@ Un solo código para varias empresas. `public.membresias` (usuario, empresa) con
 - `pedidos.pago_estado` / `pago_metodo` dan cuentas por cobrar por tienda (`puntos_venta_resumen.saldo_pendiente`). `marcar_pago()` las liquida.
 - Rol `rutas` en `membresias`: UI restringida a rutas, visitas, puntos de venta y tareas; RLS impide leer finanzas y producción.
 - Todas las vistas tienen `security_invoker` para que respeten las membresías.
+
+## Consejo y legal
+- `metas` (tipo `ventas` = ventas netas acumuladas del año desde `resultados_mensuales`; `manual` = avance acumulado capturado en cada junta en `metas_avances`). Progreso contra la meta y contra lo esperado a la fecha (meta × meses transcurridos / 12).
+- `juntas` (una por mes, minuta jsonb por área, acuerdos, estado borrador/cerrada) y `compromisos` (responsable, fecha límite, estado). Los compromisos pendientes de juntas anteriores se arrastran a la siguiente.
+- Números del mes se calculan en `src/lib/consejo.ts` (`kpisDelMes`) y se comparan con el mes anterior.
+- `documentos_legales` (categoría, contraparte, punto de venta, vigencia, archivo en bucket privado `legal`), `datos_empresa` (clave/valor) y `cuentas_bancarias`. Todo solo para administradores.

@@ -45,3 +45,9 @@ body {
   tbody td { @apply px-3 py-2 border-b border-line/60 align-top; }
   tbody tr:last-child td { @apply border-b-0; }
 }
+
+@media print {
+  body { background: white; }
+  main { padding: 0 !important; }
+  .print\:hidden { display: none !important; }
+}

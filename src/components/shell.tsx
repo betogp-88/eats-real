@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { Suspense, useState, type ReactNode } from "react";
-import { Menu, X, LayoutDashboard, CheckSquare, Factory, Warehouse, ShoppingCart, Receipt, BarChart3, Users, Store, Settings, Route, UserCog } from "lucide-react";
+import { Menu, X, LayoutDashboard, CheckSquare, Factory, Warehouse, ShoppingCart, Receipt, BarChart3, Users, Store, Settings, Route, UserCog, Landmark, Scale } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { logout } from "@/app/(auth)/login/actions";
 import { Toast } from "@/components/ui/client";
@@ -26,6 +26,10 @@ const grupos: { titulo: string; items: Item[] }[] = [
     { href: "/gastos", label: "Gastos y marketing", icon: Receipt, also: ["/marketing"], roles: ["admin"] },
     { href: "/resultados", label: "Resultados", icon: BarChart3, roles: ["admin"] },
   ]},
+  { titulo: "Dirección", items: [
+    { href: "/consejo", label: "Consejo", icon: Landmark, roles: ["admin"] },
+    { href: "/legal", label: "Legal", icon: Scale, roles: ["admin"] },
+  ]},
   { titulo: "Configuración", items: [
     { href: "/productos", label: "Productos y almacén", icon: Settings, roles: ["admin"] },
     { href: "/usuarios", label: "Usuarios", icon: UserCog, roles: ["admin"] },
@@ -39,7 +43,7 @@ export function Shell({ email, rol, nombre, logo, children }: { email?: string; 
 
   return (
     <div className="flex-1 flex min-h-screen">
-      <header className="md:hidden fixed top-0 inset-x-0 z-30 h-14 bg-brand text-white flex items-center gap-3 px-4">
+      <header className="print:hidden md:hidden fixed top-0 inset-x-0 z-30 h-14 bg-brand text-white flex items-center gap-3 px-4">
         <button onClick={() => setOpen(true)} aria-label="Abrir menú" className="p-1 -ml-1"><Menu size={24} /></button>
         {logo}
         <span className="font-bold">{nombre} Admin</span>
@@ -48,7 +52,7 @@ export function Shell({ email, rol, nombre, logo, children }: { email?: string; 
       {open && <div className="md:hidden fixed inset-0 z-40 bg-black/40" onClick={() => setOpen(false)} />}
 
       <aside className={cn(
-        "fixed md:sticky md:top-0 md:h-screen inset-y-0 left-0 z-50 w-64 md:w-60 shrink-0 bg-brand text-white flex flex-col transition-transform md:transition-none overflow-y-auto",
+        "print:hidden fixed md:sticky md:top-0 md:h-screen inset-y-0 left-0 z-50 w-64 md:w-60 shrink-0 bg-brand text-white flex flex-col transition-transform md:transition-none overflow-y-auto",
         open ? "translate-x-0" : "-translate-x-full md:translate-x-0",
       )}>
         <div className="flex items-center gap-3 px-5 py-5">

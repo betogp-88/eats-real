@@ -32,6 +32,9 @@ El código es uno solo. Cada empresa tiene su **esquema** de Postgres con las mi
 ## Roles
 `public.membresias.rol` es `admin` (todo) o `rutas` (solo Rutas y visitas, Puntos de venta y Tareas). Se administra desde la app en **Configuración → Usuarios**. Las tablas de finanzas y producción (`gastos`, `gastos_marketing`, `lotes`, `lote_costos`, `maquiladores`) solo las leen y escriben administradores.
 
+## Documentos legales
+Bucket privado `legal` (lo crea `0008`), carpeta por empresa. Solo administradores suben, leen y borran.
+
 ## Fotos de visitas
 Bucket privado `visitas` en Storage (lo crea `0004`), con carpeta por empresa (`<slug>/<punto_venta>/archivo.jpg`). Las políticas permiten subir y leer solo a miembros de esa empresa.
 

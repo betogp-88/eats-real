@@ -13,7 +13,7 @@ Next.js (App Router) · TypeScript · Tailwind · Supabase (Postgres + Auth) · 
 ### 1. Base de datos (Supabase)
 
 1. Crea un proyecto en [supabase.com](https://supabase.com).
-2. En **SQL Editor**, ejecuta en orden `supabase/migrations/0001_init.sql`, `supabase/seed.sql`, `supabase/migrations/0002_clientes_puntos_venta.sql`, `supabase/migrations/0003_tareas.sql`, `supabase/migrations/0004_membresias.sql`, `supabase/migrations/0006_zona_puntos_venta.sql` y `supabase/migrations/0007_rutas_visitas.sql`.
+2. En **SQL Editor**, ejecuta en orden `supabase/migrations/0001_init.sql`, `supabase/seed.sql`, `supabase/migrations/0002_clientes_puntos_venta.sql`, `supabase/migrations/0003_tareas.sql`, `supabase/migrations/0004_membresias.sql`, `supabase/migrations/0006_zona_puntos_venta.sql`, `supabase/migrations/0007_rutas_visitas.sql` y `supabase/migrations/0008_consejo_legal.sql`.
 3. En **Authentication → Users**, crea los usuarios de los socios (correo y contraseña). No hay registro público.
 4. En **Settings → API** copia la URL del proyecto y la clave `anon`.
 
@@ -40,6 +40,8 @@ Para que cada push despliegue solo aunque el commit no sea de un miembro del equ
 5. **Gastos y marketing**: captura mensual que alimenta el estado de resultados.
 6. **Resultados**: estado de resultados mensual y margen por producto y canal.
 7. **Tareas**: pendientes personales o asignados a otro socio, con prioridad y fecha límite.
+8. **Consejo**: metas del año (ventas medidas por el sistema y metas manuales), junta mensual con números automáticos del mes, minuta por área (ventas, canales, gastos, marketing, operaciones, RH), compromisos con responsable y fecha, e imprimible.
+9. **Legal**: actas constitutivas y de asamblea, fiscal, bancario, contratos con tiendas y retailers, permisos; datos de la empresa y cuentas bancarias. Avisa contratos por vencer.
 
 ## Varias empresas (Maix, etc.)
 
