@@ -4,11 +4,11 @@ import { useState } from "react";
 import { ActionForm } from "@/components/ui/client";
 import { Field } from "@/components/ui";
 import { crearTarea, actualizarTarea, actualizarMiNombre } from "./actions";
+import { nombreDe } from "@/lib/utils";
 
 export type Perfil = { id: string; nombre: string | null; email: string };
 export type Tarea = { id: string; titulo: string; descripcion: string | null; asignado_a: string | null; prioridad: string; fecha_limite: string | null };
 
-export const nombreDe = (p?: Perfil | null) => p?.nombre || p?.email?.split("@")[0] || "—";
 
 function Campos({ tarea, perfiles, yo }: { tarea?: Tarea; perfiles: Perfil[]; yo: string }) {
   return (

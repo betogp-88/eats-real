@@ -3,7 +3,8 @@ import { PageHeader, Card, Badge, Empty, Tabs, Panel, Stat } from "@/components/
 import { ConfirmButton } from "@/components/ui/client";
 import { fecha } from "@/lib/utils";
 import { empresa } from "@/lib/empresa";
-import { DocumentoForm, DatosEmpresaForm, CuentaForm, CATEGORIAS } from "./forms";
+import { DocumentoForm, DatosEmpresaForm, CuentaForm } from "./forms";
+import { CATEGORIAS } from "@/lib/legal";
 import { eliminarDocumento, eliminarCuenta } from "./actions";
 
 export default async function LegalPage({ searchParams }: PageProps<"/legal">) {

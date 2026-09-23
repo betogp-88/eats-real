@@ -2,7 +2,8 @@ import { createClient } from "@/lib/supabase/server";
 import { PageHeader, Card, Empty, Badge, Chip, Panel } from "@/components/ui";
 import { ConfirmButton } from "@/components/ui/client";
 import { fecha, hoy } from "@/lib/utils";
-import { NuevaTareaForm, EditarTarea, MiNombreForm, nombreDe, type Perfil } from "./forms";
+import { NuevaTareaForm, EditarTarea, MiNombreForm, type Perfil } from "./forms";
+import { nombreDe } from "@/lib/utils";
 import { marcarTarea, eliminarTarea } from "./actions";
 import { empresa } from "@/lib/empresa";
 

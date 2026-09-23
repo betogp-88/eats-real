@@ -5,19 +5,10 @@ import { ActionForm } from "@/components/ui/client";
 import { Field, Alert } from "@/components/ui";
 import { SelectBuscable } from "@/components/ui/select-buscable";
 import { crearDocumento, guardarDatosEmpresa, crearCuenta } from "./actions";
-import { CLAVES_EMPRESA } from "@/lib/legal";
+import { CLAVES_EMPRESA, CATEGORIAS } from "@/lib/legal";
 import { createClient } from "@/lib/supabase/client";
 import { empresa } from "@/lib/empresa";
 
-export const CATEGORIAS: { key: string; label: string; desc: string }[] = [
-  { key: "constitutivo", label: "Acta constitutiva", desc: "Escritura, estatutos, poderes" },
-  { key: "asamblea", label: "Actas de asamblea", desc: "Ordinarias y extraordinarias" },
-  { key: "fiscal", label: "Fiscal", desc: "Constancia de situación fiscal, opinión de cumplimiento, e.firma" },
-  { key: "bancario", label: "Bancario", desc: "Contratos de cuenta, estados, cartas" },
-  { key: "contrato", label: "Contratos", desc: "Puntos de venta, retailers, proveedores, maquila" },
-  { key: "permiso", label: "Permisos y registros", desc: "COFEPRIS, marca (IMPI), licencias" },
-  { key: "otro", label: "Otros", desc: "Lo que no cabe arriba" },
-];
 
 export function DocumentoForm({ categoriaInicial, puntosVenta }: { categoriaInicial: string; puntosVenta: { id: string; nombre: string }[] }) {
   const [categoria, setCategoria] = useState(categoriaInicial === "todos" ? "contrato" : categoriaInicial);

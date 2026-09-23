@@ -76,3 +76,5 @@ export const CANALES_MARKETING = ["Meta", "Google", "TikTok", "Influencers", "Ot
 export const CONCEPTOS_LOTE = ["Maquila", "Materia prima", "Empaque", "Etiquetas", "Flete", "Otros"];
 
 export const DIAS = ["Domingo", "Lunes", "Martes", "Miércoles", "Jueves", "Viernes", "Sábado"];
+
+export const nombreDe = (p?: { nombre?: string | null; email?: string | null } | null) => p?.nombre || p?.email?.split("@")[0] || "—";
